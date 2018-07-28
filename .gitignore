@@ -240,3 +240,10 @@ TSWLatexianTemp*
 
 # generated if using elsarticle.cls
 *.spl
+
+notebook/bisect*
+notebook/jupyter-images/*
+notebook_examples/bisect*
+notebook_examples/jupyter-images/*
+models/*.pdf
+models/*.svg

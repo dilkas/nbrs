@@ -1,0 +1,31 @@
+atomic ctrl S0 = 0;
+atomic ctrl S1 = 0;
+atomic ctrl S2 = 0;
+atomic ctrl S3 = 0;
+
+big initial = S0;
+big heads = S2;
+big tails = S3;
+
+action a
+  react toTemp = S0 -[1.]-> S1;
+  react loopHeads = S2 -[1.]-> S2;
+  react loopTails = S3 -[1.]-> S3;
+end
+
+action b[1]
+  react toInit = S1 -[0.7]-> S0;
+  react loop = S1 -[0.3]-> S1;
+end
+
+action c
+  react toHeads = S1 -[0.5]-> S2;
+  react toTails = S1 -[0.5]-> S3;
+end
+
+begin nbrs
+  init initial;
+  rules = [ {toTemp, toInit, loop, toHeads,
+  toTails, loopHeads, loopTails} ];
+  preds = { initial, heads[3], tails };
+end

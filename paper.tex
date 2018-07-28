@@ -1,0 +1,115 @@
+\documentclass[runningheads]{llncs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{listings}
+% If you use the hyperref package, please uncomment the following line
+% to display URLs in blue roman font according to Springer's eBook style:
+% \renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\DeclareMathOperator{\Dist}{Dist}
+\DeclareMathOperator{\ctrl}{ctrl}
+\DeclareMathOperator{\prnt}{prnt}
+\DeclareMathOperator{\link}{link}
+
+\lstdefinelanguage{Big}{
+  sensitive=true,
+  morekeywords={fun, brs, end, sbrs, pbrs, nbrs, begin, init, atomic, preds,
+    rules, action, big, ctrl, float, int, react},
+  comment=[l]{\#}
+}
+
+\begin{document}
+\title{Nondeterministic Bigraphical Reactive Systems for Markov Decision
+  Processes\thanks{Supported by organization x.}}
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+\author{Paulius Dilkas\orcidID{0000-1111-2222-3333} \and
+  Michele Sevegnani\orcidID{1111-2222-3333-4444}}
+\authorrunning{P. Dilkas \& M. Sevegnani}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+\institute{University of Glasgow, Glasgow, UK}
+\maketitle
+
+\begin{abstract}
+The abstract should briefly summarize the contents of the paper in
+150--250 words.
+
+\keywords{First keyword  \and Second keyword \and Another keyword.}
+\end{abstract}
+
+\section{Introduction}
+
+\begin{definition}[\cite{DBLP:conf/nfm/GiaquintaHIMN18}]
+  For any finite set $X$, let $\Dist(X)$ denote the set of discrete probability
+  distributions over $X$. A \emph{Markov Decision Process} is a tuple $ (S,
+  \overline{s}, A, P, L)$, where: $S$ is a finite set of states and
+  $\overline{s} \in S$ is the initial state; $A$ is a finite set of
+  \emph{actions}; $P : S \times A \to \Dist(S)$ is a (partial) probabilistic
+  transition function, mapping state-action pairs to probability distributions
+  over $S$; $L : S \to 2^P$ is a labelling with atomic propositions.
+\end{definition}
+
+\begin{definition}
+  A \emph{reward structure} for an MDP $(S, \overline{s}, A, P, L)$ is a pair
+  $(\rho, \iota)$, where $\rho : S \to \mathbb{R}$ is the \emph{state reward
+    function}, and $\iota : S \times A \to \mathbb{R}$ is the \emph{transition
+    reward function}.
+\end{definition}
+
+% TODO rephrase
+\begin{definition}
+  A \emph{bigraph} is a tuple $(V, E, \ctrl, \prnt, \link) : \langle k, X
+  \rangle \to \langle m, Y \rangle$, where $V$ is a set of nodes, $E$ is a set
+  of edges, $\ctrl$ is the \emph{control map} that assigns controls to nodes,
+  $\prnt$ is the \emph{parent map} that defines the nesting of nodes, and
+  $\link$ is the \emph{link map} that defines the link structure.
+
+  The notation $\langle k, X \rangle \to \langle m, Y \rangle$ indicates that
+  the bigraph has $k$ \emph{holes} (sites) and a set of inner names $X$ and $m$
+  \emph{regions}, with a set of \emph{outer names} $Y$. These are respectively
+  known as the \emph{inner} and \emph{outer} interfaces of the bigraph.
+\end{definition}
+
+Reaction rule definition \cite{DBLP:journals/corr/abs-1111-0086}
+
+Stochastic bigraphs \cite{DBLP:journals/entcs/KrivineMT08}
+
+PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
+
+Define NBRS
+
+Lemma: any MDP can be expressed as an NBRS
+
+Changes from PBRS: each reaction rule annotated with an action name
+(probabilities normalised over each action separately) and an integer
+reward/cost, predicates get a reward/cost, too.
+
+\section{Example}
+
+\begin{figure}
+  \includegraphics{models/example_ts.pdf}
+  \caption{...}
+  \label{example_ts}
+\end{figure}
+
+\lstinputlisting[caption=asdf, language=Big]{models/example.big}
+
+\begin{example}
+  Consider an MDP $(S, \overline{s}, A, P, L)$, where...
+  Look at Figure~\ref{example_ts}.
+\end{example}
+
+\section{Exporting to PRISM}
+
+Transitions, state rewards, transition rewards
+
+\section{Case study in autonomous agents}
+
+\bibliographystyle{splncs04}
+\bibliography{bibliography}
+\end{document}
