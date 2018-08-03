@@ -1,17 +1,32 @@
 \documentclass[runningheads]{llncs}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{mathtools}
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{wasysym}
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
 % \renewcommand\UrlFont{\color{blue}\rmfamily}
 
-\DeclareMathOperator{\Dist}{Dist}
-\DeclareMathOperator{\ctrl}{ctrl}
-\DeclareMathOperator{\prnt}{prnt}
-\DeclareMathOperator{\link}{link}
+\newcommand\Dist{\mathit{Dist}}
+\newcommand\ctrl{\mathit{ctrl}}
+\newcommand\prnt{\mathit{prnt}}
+\newcommand\link{\mathit{link}}
+\newcommand\points{\mathit{points}}
+\newcommand\ports{\mathit{ports}}
+\newcommand\ar{\mathit{ar}}
+\newcommand\id{\mathsf{id}}
+\newcommand\Id{\mathsf{Id}}
+
+\providecommand\longrightarrowRHD{\relbar\joinrel\relbar\joinrel\mathrel\RHD}
+\providecommand\longrightarrowrhd{\relbar\joinrel\relbar\joinrel\mathrel\rhd}
+
+\makeatletter
+\providecommand*\xrightarrowRHD[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longrightarrowRHD}{#1}{#2}}
+\providecommand*\xrightarrowrhd[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longrightarrowrhd}{#1}{#2}}
+\makeatother
 
 \lstdefinelanguage{Big}{
   sensitive=true,
@@ -61,25 +76,126 @@ The abstract should briefly summarize the contents of the paper in
     reward function}.
 \end{definition}
 
-% TODO rephrase
-\begin{definition}
-  A \emph{bigraph} is a tuple $(V, E, \ctrl, \prnt, \link) : \langle k, X
-  \rangle \to \langle m, Y \rangle$, where $V$ is a set of nodes, $E$ is a set
-  of edges, $\ctrl$ is the \emph{control map} that assigns controls to nodes,
-  $\prnt$ is the \emph{parent map} that defines the nesting of nodes, and
-  $\link$ is the \emph{link map} that defines the link structure.
+From \cite{dblp:journals/tcs/sevegnanic15}.
 
-  The notation $\langle k, X \rangle \to \langle m, Y \rangle$ indicates that
-  the bigraph has $k$ \emph{holes} (sites) and a set of inner names $X$ and $m$
-  \emph{regions}, with a set of \emph{outer names} $Y$. These are respectively
-  known as the \emph{inner} and \emph{outer} interfaces of the bigraph.
+\begin{definition}[Concrete place graph with sharing]
+  A \emph{concrete place graph with sharing}
+  \[ F = (V_F, \ctrl_F, \prnt_F) : m \to n \]
+  is a triple having an inner interface $m$ and an outer interface $n$. These
+  index the sites and regions of the place graph, respectively. $F$ has a finite
+  set $V_F \subset \mathcal{V}$ of nodes, a control map $\ctrl_F : V_F \to
+  \mathcal{K}$, and a \emph{parent relation}
+  \[ \prnt_F \subseteq (m \uplus V_F) \times (V_F \uplus n) \]
+  that is acyclic, i.e., $(v, v) \not\in \prnt_F^+$ for any $v \in V_F$.
 \end{definition}
 
-Reaction rule definition \cite{DBLP:journals/corr/abs-1111-0086}
+\begin{definition}[Composition for place graphs with sharing]
+  If $F : k \to m$ and $G : m \to n$ are two concrete place graphs with sharing
+  with $V_F \cap V_G = \emptyset$, their composite
+  \[ G \circ F = (V, \ctrl, \prnt) : k \to n \]
+  has nodes $V = V_F \uplus V_G$ and control map $\ctrl = \ctrl_F \uplus
+  \ctrl_G$. Its parent relation $\prnt \subseteq (k \uplus V) \times (V \uplus
+  n)$ is given by:
+  \[ \prnt \coloneqq \prnt_G^\lhd \uplus \prnt_\circ \uplus \prnt_F^\rhd, \]
+  where
+  \begin{align*}
+    \prnt_F^\rhd &= \prnt_F \rhd V_F, \\
+    \prnt_G^\lhd &= V_G \lhd \prnt_G, \\
+    \prnt_\circ &= (m \lhd \prnt_G) \circ (\prnt_F \rhd m).
+  \end{align*}
+\end{definition}
+
+\begin{definition}[Tensor product for place graphs]
+  If $G_0 : m_0 \to n_0$ and $G_1 : m_1 \to n_1$ are two concrete place graphs
+  with sharing with $V_F \cap V_G = \emptyset$, their tensor product
+  \[ G_0 \otimes G_1 = (V, \ctrl, \prnt) : m_0 + m_1 \to n_0 + n_1 \]
+  has nodes $V = V_{G_0} \uplus V_{G_1}$ and control map $\ctrl \coloneqq
+  \ctrl_{G_0} \uplus \ctrl_{G_1}$. Its parent relation $\prnt \subseteq [(m_0 +
+  m_1) \uplus V] \times [V \uplus (n_0 + n_1)]$ is defined as
+  \[ \prnt_{G_0} \uplus \prnt_{G_1}^{(m_0, n_0)}, \]
+  where
+  \begin{align*}
+    \prnt_{G_1}^{(m_0, n_0)} = &\{ (v, w) \mid (v, w) \in \prnt_{G_1} \text{ and } v, w \in V_{G_1} \} \\
+    \uplus &\{ (m_0 + i, w) \mid (i, w) \in \prnt_{G_1}, w \in V_{G_1} \text{ and } i \in m_1 \} \\
+    \uplus &\{ (v, n_0 + i) \mid (v, i) \in \prnt_{G_1}, v \in V_{G_1} \text{ and } i \in n_1 \} \\
+    \uplus &\{ (m_0 + i, n_0 + j) \mid (i, j) \in \prnt_{G_1}, i \in m_1, \text{ and } j \in n_1 \}.
+  \end{align*}
+\end{definition}
+
+\begin{definition}[Concrete link graph]
+  A \emph{concrete link graph}
+  \[ F = (V_F, E_F, \ctrl_F, \link_F) : X \to Y \]
+  is a quadruple having an inner face $X$ and an outer face $Y$, both finite
+  subsets of $\mathcal{X}$, called respectivelly the inner and outer names of
+  the link graph. $F$ has finite sets $V_F \subset \mathcal{V}$ of nodes and
+  $E_F \subset \mathcal{E}$ of edges, a control map $\ctrl_F : V_F \to
+  \mathcal{K}$ and a \emph{link map}
+  \[ \link_F : X \uplus P_F \to E_F \uplus Y, \]
+  where $P_F \coloneqq \{ (v, i) \mid i \in \ar(\ctrl_F(v)) \}$ is the set of
+  ports of $F$. Thus $(v, i)$ is the $i$th port of node $v$. We shall call $X
+  \uplus P_F$ the \emph{points} of $F$, and $E_F \uplus Y$ its \emph{links}.
+\end{definition}
+
+The sets of points and the set of ports of a link $l$ are defined by
+\[ \points_F(l) \coloneqq \{ p \mid \link_F(p) = l \}, \quad \ports_F(l)
+  \coloneqq \points_F(l) \setminus X. \]
+An edge is \emph{idle} if it has no points. Identities over name sets are
+defined by $\id_X = (\emptyset, \emptyset, \emptyset, \Id_X) : X \to X$.
+
+\begin{definition}[Concrete bigraph with sharing]
+  A concrete bigraph
+  \[ F = (V_F, E_F, \ctrl_F, \prnt_F, \link_F) : \langle k, X \rangle \to
+    \langle m, Y \rangle \]
+  consists of a concrete place graph with sharing $F^P = (V_F, \ctrl_F, \prnt_F)
+  : k \to m$ and a concrete link graph $F^L = (V_F, E_F, \ctrl_F, \link_F) : X
+  \to Y$. We write the concrete bigraph with sharing as $F = (F^P, F^L)$.
+\end{definition}
+
+Definitions: support translation, lean-support equivalence, concretion,
+abstraction.
+
+More definitions: level, normalised levels, occurrence, matching, concrete
+occurrence, underlying graph
 
 Stochastic bigraphs \cite{DBLP:journals/entcs/KrivineMT08}
 
-PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
+From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
+
+% TODO: not general enough
+\begin{definition}[reaction rule]
+  A \emph{reaction rule} is a pair
+  \[ \mathsf{R} = (R : m \to J, R' : m \to J), \]
+  sometimes written as $R \longrightarrowRHD R'$, where $R$ is the \emph{redex}
+  and $R'$ the \emph{reactum}, and $R$ is solid. The rule generates all the
+  \emph{ground reaction rules} $(r, r')$, where $r = (R \otimes \id_Y) \circ d$
+  and $r' = (R' \otimes \id_Y) \circ d$ for some discrete ground
+  \emph{parameter} $d : \epsilon \to \langle m, Y \rangle$. The \emph{reaction
+    relation} $\longrightarrowrhd_{\mathsf{R}}$ over ground bigraphs is defined
+  by
+  \[ g \longrightarrowrhd_{\mathsf{R}} g' \text{ iff } g = Dr \text{ and } g' = Dr' \]
+  for some bigraph $D$ and some ground reaction rule $(r, r')$ generated from
+  $\mathsf{R}$.
+\end{definition}
+
+\begin{definition}[bigraphical reactive system (BRS)]
+  A \emph{bigraphical reactive system} consists of a pair $(\mathcal{B},
+  \mathcal{R})$, where $\mathcal{B}$ is a set of agents and $\mathcal{R}$ is a
+  set of reaction rules defined over $\mathcal{B}$. It has a reaction relation
+  \[ \longrightarrowrhd_{\mathcal{R}} \coloneqq \bigcup_{\mathsf{R} \in
+      \mathcal{R}} \longrightarrowrhd_{\mathsf{R}}, \]
+  which will be written $\longrightarrowrhd$ when $\mathcal{R}$ is understood.
+  We write $(\mathcal{B}(\Sigma), \mathcal{R})$ when the elements of
+  $\mathcal{B}$ are $\Sigma$-sorted.
+\end{definition}
+
+\subsection{New stuff}
+
+% probabilities sum to 1!
+\begin{definition}[probabilistic reaction rule]
+  A \emph{probabilistic reaction rule} $\mathsf{R}$ is a triple $(R, R', p)$,
+  sometimes written $R \xrightarrowRHD{p} R'$, where $(R, R')$ is a reaction
+  rule and $p \in [0, 1]$ is a probability.
+\end{definition}
 
 Define NBRS
 
@@ -89,20 +205,47 @@ Changes from PBRS: each reaction rule annotated with an action name
 (probabilities normalised over each action separately) and an integer
 reward/cost, predicates get a reward/cost, too.
 
-\section{Example}
+\section{Jupyter interface \& visualisations}
 
-\begin{figure}
-  \includegraphics{models/example_ts.pdf}
-  \caption{...}
-  \label{example_ts}
-\end{figure}
+We introduce a convenient graphical user interface for working with bigraphs via
+Jupyter notebooks.
 
-\lstinputlisting[caption=asdf, language=Big]{models/example.big}
-
-\begin{example}
+\begin{example} \label{example}
   Consider an MDP $(S, \overline{s}, A, P, L)$, where...
   Look at Figure~\ref{example_ts}.
 \end{example}
+
+\begin{figure}
+  \includegraphics{models/example_ts.pdf}
+  \caption{The full transition system of Example~\ref{example}.}
+  \label{example_ts}
+\end{figure}
+
+\begin{figure}
+  \includegraphics{images/interface.jpg}
+  \caption{The BigraphER Jupyter interface with syntax highlighting.}
+  \label{interface}
+\end{figure}
+
+\begin{figure}
+  \includegraphics{images/transitions.jpg}
+  \caption{...}
+  \label{transitions}
+\end{figure}
+
+\begin{figure}
+  \includegraphics{images/simulation.jpg}
+  \caption{...}
+  \label{simulation}
+\end{figure}
+
+\begin{figure}
+  \includegraphics{images/output.jpg}
+  \caption{...}
+  \label{output}
+\end{figure}
+
+\lstinputlisting[caption=..., language=Big]{models/example.big}
 
 \section{Exporting to PRISM}
 
