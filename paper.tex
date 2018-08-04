@@ -54,12 +54,12 @@
 The abstract should briefly summarize the contents of the paper in
 150--250 words.
 
-\keywords{First keyword  \and Second keyword \and Another keyword.}
+\keywords{First keyword \and Second keyword \and Another keyword.}
 \end{abstract}
 
 \section{Introduction}
 
-\begin{definition}[\cite{DBLP:conf/nfm/GiaquintaHIMN18}]
+\begin{definition}[Markov decision process] \label{mdp}
   For any finite set $X$, let $\Dist(X)$ denote the set of discrete probability
   distributions over $X$. A \emph{Markov Decision Process} is a tuple $ (S,
   \overline{s}, A, P, L)$, where: $S$ is a finite set of states and
@@ -69,7 +69,7 @@ The abstract should briefly summarize the contents of the paper in
   over $S$; $L : S \to 2^P$ is a labelling with atomic propositions.
 \end{definition}
 
-\begin{definition}
+\begin{definition}[rewards]
   A \emph{reward structure} for an MDP $(S, \overline{s}, A, P, L)$ is a pair
   $(\rho, \iota)$, where $\rho : S \to \mathbb{R}$ is the \emph{state reward
     function}, and $\iota : S \times A \to \mathbb{R}$ is the \emph{transition
@@ -78,7 +78,7 @@ The abstract should briefly summarize the contents of the paper in
 
 From \cite{dblp:journals/tcs/sevegnanic15}.
 
-\begin{definition}[Concrete place graph with sharing]
+\begin{definition}[concrete place graph with sharing]
   A \emph{concrete place graph with sharing}
   \[ F = (V_F, \ctrl_F, \prnt_F) : m \to n \]
   is a triple having an inner interface $m$ and an outer interface $n$. These
@@ -89,7 +89,7 @@ From \cite{dblp:journals/tcs/sevegnanic15}.
   that is acyclic, i.e., $(v, v) \not\in \prnt_F^+$ for any $v \in V_F$.
 \end{definition}
 
-\begin{definition}[Composition for place graphs with sharing]
+\begin{definition}[composition for place graphs with sharing]
   If $F : k \to m$ and $G : m \to n$ are two concrete place graphs with sharing
   with $V_F \cap V_G = \emptyset$, their composite
   \[ G \circ F = (V, \ctrl, \prnt) : k \to n \]
@@ -105,7 +105,7 @@ From \cite{dblp:journals/tcs/sevegnanic15}.
   \end{align*}
 \end{definition}
 
-\begin{definition}[Tensor product for place graphs]
+\begin{definition}[tensor product for place graphs]
   If $G_0 : m_0 \to n_0$ and $G_1 : m_1 \to n_1$ are two concrete place graphs
   with sharing with $V_F \cap V_G = \emptyset$, their tensor product
   \[ G_0 \otimes G_1 = (V, \ctrl, \prnt) : m_0 + m_1 \to n_0 + n_1 \]
@@ -122,7 +122,7 @@ From \cite{dblp:journals/tcs/sevegnanic15}.
   \end{align*}
 \end{definition}
 
-\begin{definition}[Concrete link graph]
+\begin{definition}[concrete link graph]
   A \emph{concrete link graph}
   \[ F = (V_F, E_F, \ctrl_F, \link_F) : X \to Y \]
   is a quadruple having an inner face $X$ and an outer face $Y$, both finite
@@ -142,13 +142,14 @@ The sets of points and the set of ports of a link $l$ are defined by
 An edge is \emph{idle} if it has no points. Identities over name sets are
 defined by $\id_X = (\emptyset, \emptyset, \emptyset, \Id_X) : X \to X$.
 
-\begin{definition}[Concrete bigraph with sharing]
+\begin{definition}[concrete bigraph with sharing]
   A concrete bigraph
   \[ F = (V_F, E_F, \ctrl_F, \prnt_F, \link_F) : \langle k, X \rangle \to
     \langle m, Y \rangle \]
   consists of a concrete place graph with sharing $F^P = (V_F, \ctrl_F, \prnt_F)
   : k \to m$ and a concrete link graph $F^L = (V_F, E_F, \ctrl_F, \link_F) : X
-  \to Y$. We write the concrete bigraph with sharing as $F = (F^P, F^L)$.
+  \to Y$. If $X = \epsilon$, then $F$ is called \emph{ground}. We write the
+  concrete bigraph with sharing as $F = (F^P, F^L)$.
 \end{definition}
 
 Definitions: support translation, lean-support equivalence, concretion,
@@ -162,7 +163,7 @@ Stochastic bigraphs \cite{DBLP:journals/entcs/KrivineMT08}
 From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 % TODO: not general enough
-\begin{definition}[reaction rule]
+\begin{definition}[reaction rule] \label{reaction_rule}
   A \emph{reaction rule} is a pair
   \[ \mathsf{R} = (R : m \to J, R' : m \to J), \]
   sometimes written as $R \longrightarrowRHD R'$, where $R$ is the \emph{redex}
@@ -184,26 +185,76 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
   \[ \longrightarrowrhd_{\mathcal{R}} \coloneqq \bigcup_{\mathsf{R} \in
       \mathcal{R}} \longrightarrowrhd_{\mathsf{R}}, \]
   which will be written $\longrightarrowrhd$ when $\mathcal{R}$ is understood.
-  We write $(\mathcal{B}(\Sigma), \mathcal{R})$ when the elements of
-  $\mathcal{B}$ are $\Sigma$-sorted.
 \end{definition}
 
-\subsection{New stuff}
+\subsection{Probabilistic bigraphs}
 
-% probabilities sum to 1!
 \begin{definition}[probabilistic reaction rule]
   A \emph{probabilistic reaction rule} $\mathsf{R}$ is a triple $(R, R', p)$,
   sometimes written $R \xrightarrowRHD{p} R'$, where $(R, R')$ is a reaction
-  rule and $p \in [0, 1]$ is a probability.
+  rule and $p \in (0, 1]$ is a probability. Similarly to
+  Definition~\ref{reaction_rule}, it generates a set of ground reaction rules of
+  the form $(r, r', p)$.
 \end{definition}
 
-Define NBRS
+\begin{definition}[probabilistic bigraphical reactive system (PBRS)]
+  A \emph{probabilistic bigraphical reactive system} consists of a pair
+  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of agents and
+  $\mathcal{R}$ is a set of probabilistic reaction rules defined over
+  $\mathcal{B}$.
 
-Lemma: any MDP can be expressed as an NBRS
+  Let $g, g'$ be ground bigraphs, and $\{ (r_i, r'_i, p_i) \}_{i=1}^n$ a set of
+  ground probabilistic reaction rules, where for each $r_i$, there exists a
+  bigraph $D_i$ such that $g = D_ir_i$. Let $S = \{ (r_i, r'_i, p_i) \mid g' =
+  D_ir'_i \}$ (for the same $D_i$), and
+  \[ s = \sum_{i=1}^n p_i. \]
+  Then the reaction relation is defined as
+  \[ g \xrightarrowrhd{p}_{\mathcal{R}} g' \text{ iff } S \ne \emptyset, \]
+  where
+  \[ p = \frac{1}{s}\sum_{(r, r', p') \in S} p'. \]
+\end{definition}
 
-Changes from PBRS: each reaction rule annotated with an action name
-(probabilities normalised over each action separately) and an integer
-reward/cost, predicates get a reward/cost, too.
+\subsection{Nondeterministic bigraphs}
+
+\begin{definition}[nondeterministic reaction rule]
+  Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
+  $\mathsf{R}$ is a tuple $(R, R', a, p)$, where $(R, R', p)$ is a probabilistic
+  reaction rule, and $a \in A$ is an action. We also define a \emph{reaction
+    reward function} $r : A \to \mathbb{R}$ that assigns a reward/cost to each
+  action.
+\end{definition}
+
+\begin{definition}[nondeterministic bigraphical reactive system (NBRS)]
+  A \emph{nondeterministic bigraphical reactive system} consists of a pair
+  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of agents and
+  $\mathcal{R}$ is a set of nondeterministic reaction rules defined over
+  $\mathcal{B}$.
+
+  Let $g, g'$ be ground bigraphs, $a \in A$ an action, and $\{ (r_i, r'_i, a,
+  p_i) \}_{i=1}^n$ a set of ground nondeterministic reaction rules with action
+  $a$, where for each $r_i$, there exists a bigraph $D_i$ such that $g =
+  D_ir_i$. Let $S = \{ (r_i, r'_i, a, p_i) \mid g' = D_ir'_i \}$ (for the same
+  $D_i$), and
+  \[ s = \sum_{i=1}^n p_i. \]
+  Then the reaction relation for action $a$ is defined as
+  \[ g \xrightarrowrhd[r(a)]{p}_{a} g' \text{ iff } S \ne \emptyset, \]
+  where
+  \[ p = \frac{1}{s}\sum_{(r, r', a, p') \in S} p'. \]
+\end{definition}
+
+% TODO: states
+BigraphER \cite{DBLP:conf/cav/SevegnaniC16} supports defining predicates, i.e.,
+bigraphs that are compared to every encountered state. We can associate a reward
+with each predicate, allowing us to assign rewards to states in a flexible and
+semantically meaningful way: the reward of a state is simply the sum of the
+rewards of all matching predicates (and $0$ in case there are none).
+
+\begin{proposition}
+  Any MDP can be expressed as an NBRS.
+\end{proposition}
+\begin{proof}
+  Obvious.
+\end{proof}
 
 \section{Jupyter interface \& visualisations}
 
@@ -211,14 +262,47 @@ We introduce a convenient graphical user interface for working with bigraphs via
 Jupyter notebooks.
 
 \begin{example} \label{example}
-  Consider an MDP $(S, \overline{s}, A, P, L)$, where...
-  Look at Figure~\ref{example_ts}.
+  Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2, s_3
+  \}$, $\overline{s} = s_0$, $A = \{ a, b, c \}$, and $P, L$ defined as follows:
+  \begin{equation*}
+    \begin{split}
+      P(s_0, a) &= [s_1 \mapsto 1], \\
+      P(s_1, b) &= [s_0 \mapsto 0.7, s_1 \mapsto 0.3], \\
+      P(s_1, c) &= [s_2 \mapsto 0.5, s_3 \mapsto 0.5], \\
+      P(s_2, a) &= [s_2 \mapsto 1], \\
+      P(s_3, a) &= [s_3 \mapsto 1],
+    \end{split}
+    \qquad
+    \begin{split}
+      L(s_0) &= \{ initial \}, \\
+      L(s_1) &= \emptyset, \\
+      L(s_2) &= \{ heads \}, \\
+      L(s_3) &= \{ tails \}.
+    \end{split}
+  \end{equation*}
+  Furthermore, equip it with a reward structure $(\rho, \iota)$, where
+  $\rho(s_2) = 3$, $\iota(s_1, b) = 1$, and both functions are zero everywhere
+  else.
+
+  The MDP can be represented as an NBRS with BigraphER code in Listing
+  \ref{example_listing}. Furthermore, the BigraphER's visualisation of the
+  (automatically generated) transition system is in Fig. \ref{example_ts}.
 \end{example}
 
 \begin{figure}
-  \includegraphics{models/example_ts.pdf}
-  \caption{The full transition system of Example~\ref{example}.}
-  \label{example_ts}
+  \begin{tabular}{p{0.5\textwidth}p{0.5\textwidth}}
+    \begin{minipage}{0.5\textwidth}
+      \vspace{13mm}
+      \lstinputlisting[caption=BigraphER code., captionpos=b, language=Big, label=example_listing]{models/example.big}
+    \end{minipage}
+    &
+      \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics{models/example_ts.pdf}
+        \caption{The full transition system.}
+        \label{example_ts}
+      \end{minipage}
+  \end{tabular}
 \end{figure}
 
 \begin{figure}
@@ -244,8 +328,6 @@ Jupyter notebooks.
   \caption{...}
   \label{output}
 \end{figure}
-
-\lstinputlisting[caption=..., language=Big]{models/example.big}
 
 \section{Exporting to PRISM}
 

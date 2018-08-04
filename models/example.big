@@ -9,8 +9,8 @@ big tails = S3;
 
 action a
   react toTemp = S0 -[1.]-> S1;
-  react loopHeads = S2 -[1.]-> S2;
-  react loopTails = S3 -[1.]-> S3;
+  react loopH = S2 -[1.]-> S2;
+  react loopT = S3 -[1.]-> S3;
 end
 
 action b[1]
@@ -19,13 +19,15 @@ action b[1]
 end
 
 action c
-  react toHeads = S1 -[0.5]-> S2;
-  react toTails = S1 -[0.5]-> S3;
+  react toH = S1 -[0.5]-> S2;
+  react toT = S1 -[0.5]-> S3;
 end
 
 begin nbrs
   init initial;
-  rules = [ {toTemp, toInit, loop, toHeads,
-  toTails, loopHeads, loopTails} ];
-  preds = { initial, heads[3], tails };
+  rules = [ {toTemp, toInit,
+    loop, toH, toT,
+    loopH, loopT} ];
+  preds = { initial, heads[3],
+    tails };
 end
