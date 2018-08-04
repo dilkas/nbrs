@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{wasysym}
+\usepackage[lighttt]{lmodern}
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
 % \renewcommand\UrlFont{\color{blue}\rmfamily}
@@ -29,6 +30,7 @@
 \makeatother
 
 \lstdefinelanguage{Big}{
+  basicstyle=\ttfamily,
   sensitive=true,
   morekeywords={fun, brs, end, sbrs, pbrs, nbrs, begin, init, atomic, preds,
     rules, action, big, ctrl, float, int, react},
@@ -38,15 +40,9 @@
 \begin{document}
 \title{Nondeterministic Bigraphical Reactive Systems for Markov Decision
   Processes\thanks{Supported by organization x.}}
-%\titlerunning{Abbreviated paper title}
-% If the paper title is too long for the running head, you can set
-% an abbreviated paper title here
-\author{Paulius Dilkas\orcidID{0000-1111-2222-3333} \and
-  Michele Sevegnani\orcidID{1111-2222-3333-4444}}
+\titlerunning{Nondeterministic BRSs for MDPs}
+\author{Paulius Dilkas \and Michele Sevegnani}
 \authorrunning{P. Dilkas \& M. Sevegnani}
-% First names are abbreviated in the running head.
-% If there are more than two authors, 'et al.' is used.
-%
 \institute{University of Glasgow, Glasgow, UK}
 \maketitle
 
@@ -54,7 +50,7 @@
 The abstract should briefly summarize the contents of the paper in
 150--250 words.
 
-\keywords{First keyword \and Second keyword \and Another keyword.}
+\keywords{Bigraphs \and Probabilistic semantics \and Markov decision process.}
 \end{abstract}
 
 \section{Introduction}
@@ -152,17 +148,8 @@ defined by $\id_X = (\emptyset, \emptyset, \emptyset, \Id_X) : X \to X$.
   concrete bigraph with sharing as $F = (F^P, F^L)$.
 \end{definition}
 
-Definitions: support translation, lean-support equivalence, concretion,
-abstraction.
-
-More definitions: level, normalised levels, occurrence, matching, concrete
-occurrence, underlying graph
-
-Stochastic bigraphs \cite{DBLP:journals/entcs/KrivineMT08}
-
 From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
-% TODO: not general enough
 \begin{definition}[reaction rule] \label{reaction_rule}
   A \emph{reaction rule} is a pair
   \[ \mathsf{R} = (R : m \to J, R' : m \to J), \]
@@ -180,7 +167,7 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 \begin{definition}[bigraphical reactive system (BRS)]
   A \emph{bigraphical reactive system} consists of a pair $(\mathcal{B},
-  \mathcal{R})$, where $\mathcal{B}$ is a set of agents and $\mathcal{R}$ is a
+  \mathcal{R})$, where $\mathcal{B}$ is a set of bigraphs and $\mathcal{R}$ is a
   set of reaction rules defined over $\mathcal{B}$. It has a reaction relation
   \[ \longrightarrowrhd_{\mathcal{R}} \coloneqq \bigcup_{\mathsf{R} \in
       \mathcal{R}} \longrightarrowrhd_{\mathsf{R}}, \]
@@ -199,7 +186,7 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 \begin{definition}[probabilistic bigraphical reactive system (PBRS)]
   A \emph{probabilistic bigraphical reactive system} consists of a pair
-  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of agents and
+  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of bigraphs and
   $\mathcal{R}$ is a set of probabilistic reaction rules defined over
   $\mathcal{B}$.
 
@@ -226,7 +213,7 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 \begin{definition}[nondeterministic bigraphical reactive system (NBRS)]
   A \emph{nondeterministic bigraphical reactive system} consists of a pair
-  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of agents and
+  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of bigraphs and
   $\mathcal{R}$ is a set of nondeterministic reaction rules defined over
   $\mathcal{B}$.
 
@@ -256,10 +243,7 @@ rewards of all matching predicates (and $0$ in case there are none).
   Obvious.
 \end{proof}
 
-\section{Jupyter interface \& visualisations}
-
-We introduce a convenient graphical user interface for working with bigraphs via
-Jupyter notebooks.
+\section{Implementation}
 
 \begin{example} \label{example}
   Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2, s_3
@@ -283,10 +267,6 @@ Jupyter notebooks.
   Furthermore, equip it with a reward structure $(\rho, \iota)$, where
   $\rho(s_2) = 3$, $\iota(s_1, b) = 1$, and both functions are zero everywhere
   else.
-
-  The MDP can be represented as an NBRS with BigraphER code in Listing
-  \ref{example_listing}. Furthermore, the BigraphER's visualisation of the
-  (automatically generated) transition system is in Fig. \ref{example_ts}.
 \end{example}
 
 \begin{figure}
@@ -304,6 +284,28 @@ Jupyter notebooks.
       \end{minipage}
   \end{tabular}
 \end{figure}
+
+The MDP can be represented as an NBRS with BigraphER code in Listing
+\ref{example_listing}. Furthermore, the BigraphER's visualisation of the
+(automatically generated) transition system is in Fig. \ref{example_ts}.
+
+More specifically, reaction rule probabilities are represented as floating-point
+numbers inside the arrows (e.g. \texttt{-[0.7]->}), each action encompasses its
+reaction rules with \texttt{\textbf{action} actionName} and
+\texttt{\textbf{end}}. Rewards can be added to actions simply by inserting an
+integer enclosed in squared brackets after the action name (e.g.
+\texttt{\textbf{action} b[1]}). Lastly, predicate rewards have the same format,
+but are listed on the \texttt{\textbf{preds}} line of the \texttt{\textbf{begin
+    nbrs}}---\texttt{\textbf{end}} block (e.g. \texttt{\textbf{preds} =
+  \{heads[3]\};}).
+
+Visually, each state is represented by a white ellipse (the starting state is
+highlighted with a thicker border), and each action (per state) is a grey
+ellipse. Text inside state ellipses lists all predicates that are satisfied by
+that state. Edges from actions to states are labelled with both the probability
+and the name of the reaction rule. Transitions from either a fully generated
+transition system or a simulation, labels from predicates, and state/transition
+rewards can be exported to the corresponding PRISM plain text formats.
 
 \begin{figure}
   \includegraphics{images/interface.jpg}
@@ -328,10 +330,6 @@ Jupyter notebooks.
   \caption{...}
   \label{output}
 \end{figure}
-
-\section{Exporting to PRISM}
-
-Transitions, state rewards, transition rewards
 
 \section{Case study in autonomous agents}
 
