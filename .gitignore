@@ -245,5 +245,5 @@ notebook/bisect*
 notebook/jupyter-images/*
 notebook_examples/bisect*
 notebook_examples/jupyter-images/*
-models/*.pdf
-models/*.svg
+models/**/*.pdf
+models/**/*.svg

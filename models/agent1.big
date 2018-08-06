@@ -1,0 +1,221 @@
+float p = 0.5;
+
+ctrl Cell = 1;
+ctrl Agent = 0;
+ctrl Directions = 0;
+ctrl Object = 0;
+
+atomic ctrl Void1 = 1;
+atomic ctrl Void2 = 1;
+
+atomic ctrl North = 1;
+atomic ctrl East = 1;
+atomic ctrl West = 1;
+atomic ctrl South = 1;
+
+atomic ctrl Visited = 1;
+atomic ctrl Unvisited = 1;
+
+big home = Void1{v1}
+        || Void2{v2}
+        || Cell{v}.(Directions.(West{v1}
+                              | South{v2}
+                              | id)
+                  | Agent);
+big goal = Agent.Object;
+big initial = Visited{v}
+           || Unvisited{u}
+           || Void1{v1}
+           || Void2{v2}
+           # bottom left
+           || Cell{v}.(Directions.(North{a}
+                                 | East{b}
+                                 | West{v1}
+                                 | South{v2})
+                     | Agent.1)
+           # top left
+           || Cell{u}.Directions.(North{v1}
+                                | East{c}
+                                | West{v1}
+                                | South{a})
+           # bottom right
+           || Cell{u}.Directions.(North{d}
+                                | East{v2}
+                                | West{b}
+                                | South{v2})
+           # top right
+           || Cell{u}.Directions.(North{v1}
+                                | East{v2}
+                                | West{c}
+                                | South{d});
+
+action west
+    react goWestToVisited = Visited{v}
+                            || Cell{v}.Directions.(East{b} | id)
+                            || Cell{v}.(Directions.(West{b} | id) | Agent)
+                            -[1.0]->
+                            Visited{v}
+                            || Cell{v}.(Directions.(East{b} | id) | Agent)
+                            || Cell{v}.Directions.(West{b} | id) @ [0, 2, 1];
+    react goWestToUnvisited = Visited{v}
+                            || Unvisited{u}
+                            || Cell{u}.Directions.(East{b} | id)
+                            || Cell{v}.(Directions.(West{b} | id) | Agent)
+                            -[1.0-p]->
+                            Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.(Directions.(East{b} | id) | Agent)
+                            || Cell{v}.Directions.(West{b} | id) @ [0, 2, 1];
+    react westObject = Visited{v}
+                    || Unvisited{u}
+                    || Cell{u}.Directions.(East{b} | id)
+                    || Cell{v}.(Directions.(West{b} | id) | Agent)
+                    -[p]->
+                    Visited{v}
+                    || Unvisited{u}
+                    || Cell{v}.(Directions.(East{b} | id) | Agent.Object)
+                    || Cell{v}.Directions.(West{b} | id) @ [0, 2, 1];
+end
+
+action east
+    react goEastToVisited = Visited{v}
+                        || Cell{v}.(Directions.(East{b} | id) | Agent)
+                        || Cell{v}.Directions.(West{b} | id)
+                        -[1.0]->
+                        Visited{v}
+                        || Cell{v}.Directions.(East{b} | id)
+                        || Cell{v}.(Directions.(West{b} | id) | Agent) @ [0, 2, 1];
+    react goEastToUnvisited = Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.(Directions.(East{b} | id) | Agent)
+                            || Cell{u}.Directions.(West{b} | id)
+                            -[1.0-p]->
+                            Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.Directions.(East{b} | id)
+                            || Cell{v}.(Directions.(West{b} | id) | Agent) @ [0, 2, 1];
+    react eastObject = Visited{v}
+                    || Unvisited{u}
+                    || Cell{v}.(Directions.(East{b} | id) | Agent)
+                    || Cell{u}.Directions.(West{b} | id)
+                    -[p]->
+                    Visited{v}
+                    || Unvisited{u}
+                    || Cell{v}.Directions.(East{b} | id)
+                    || Cell{v}.(Directions.(West{b} | id) | Agent.Object) @ [0, 2, 1];
+end
+
+action north
+  react goNorthToVisited =
+       Visited{v}
+    || Cell{v}.(Directions.(North{b} | id) | Agent)
+    || Cell{v}.Directions.(South{b} | id)
+    -[1.0]->
+       Visited{v}
+    || Cell{v}.Directions.(North{b} | id)
+    || Cell{v}.(Directions.(South{b} | id) | Agent)
+      @ [0, 2, 1];
+  react goNorthToUnvisited =
+       Visited{v}
+    || Unvisited{u}
+    || Cell{v}.(Directions.(North{b} | id) | Agent)
+    || Cell{u}.Directions.(South{b} | id)
+    -[1.0-p]->
+       Visited{v}
+    || Unvisited{u}
+    || Cell{v}.Directions.(North{b} | id)
+    || Cell{v}.(Directions.(South{b} | id) | Agent)
+      @ [0, 2, 1];
+  react northObject =
+       Visited{v}
+    || Unvisited{u}
+    || Cell{v}.(Directions.(North{b} | id) | Agent)
+    || Cell{u}.Directions.(South{b} | id)
+    -[p]->
+       Visited{v}
+    || Unvisited{u}
+    || Cell{v}.Directions.(North{b} | id)
+    || Cell{v}.(Directions.(South{b} | id)
+              | Agent.Object)
+      @ [0, 2, 1];
+end
+
+action south
+    react goSouthToVisited = Visited{v}
+                        || Cell{v}.(Directions.(South{b} | id) | Agent)
+                        || Cell{v}.Directions.(North{b} | id)
+                        -[1.0]->
+                        Visited{v}
+                        || Cell{v}.Directions.(South{b} | id)
+                        || Cell{v}.(Directions.(North{b} | id) | Agent) @ [0, 2, 1];
+    react goSouthToUnvisited = Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.(Directions.(South{b} | id) | Agent)
+                            || Cell{u}.Directions.(North{b} | id)
+                            -[1.0-p]->
+                            Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.Directions.(South{b} | id)
+                            || Cell{v}.(Directions.(North{b} | id) | Agent) @ [0, 2, 1];
+    react southObject = Visited{v}
+                    || Unvisited{u}
+                    || Cell{v}.(Directions.(South{b} | id) | Agent)
+                    || Cell{u}.Directions.(North{b} | id)
+                    -[p]->
+                    Visited{v}
+                    || Unvisited{u}
+                    || Cell{v}.Directions.(South{b} | id)
+                    || Cell{v}.(Directions.(North{b} | id) | Agent.Object) @ [0, 2, 1];
+end
+
+action home
+    react goHomeWestVisited = Visited{v}
+                            || Cell{v}.Directions.(East{b} | id)
+                            || Cell{v}.(Directions.(West{b} | id) | goal)
+                            -[1.0]->
+                            Visited{v}
+                            || Cell{v}.(Directions.(East{b} | id) | goal)
+                            || Cell{v}.Directions.(West{b} | id) @ [0, 2, 1];
+    react goHomeWestUnvisited = Visited{v}
+                            || Unvisited{u}
+                            || Cell{u}.Directions.(East{b} | id)
+                            || Cell{v}.(Directions.(West{b} | id) | goal)
+                            -[1.0]->
+                            Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.(Directions.(East{b} | id) | goal)
+                            || Cell{v}.Directions.(West{b} | id) @ [0, 2, 1];
+    react goHomeSouthVisited = Visited{v}
+                            || Cell{v}.Directions.(North{b} | id)
+                            || Cell{v}.(Directions.(South{b} | id) | goal)
+                            -[1.0]->
+                            Visited{v}
+                            || Cell{v}.(Directions.(North{b} | id) | goal)
+                            || Cell{v}.Directions.(South{b} | id) @ [0, 2, 1];
+    react goHomeSouthUnvisited = Visited{v}
+                            || Unvisited{u}
+                            || Cell{u}.Directions.(North{b} | id)
+                            || Cell{v}.(Directions.(South{b} | id) | goal)
+                            -[1.0]->
+                            Visited{v}
+                            || Unvisited{u}
+                            || Cell{v}.(Directions.(North{b} | id) | goal)
+                            || Cell{v}.Directions.(South{b} | id) @ [0, 2, 1];
+    react stayHome = Void1{v1}
+                    || Void2{v2}
+                    || Cell{v}.(Directions.(West{v1} | South{v2} | id) | goal)
+                    -[1.0]->
+                    Void1{v1}
+                    || Void2{v2}
+                    || Cell{v}.(Directions.(West{v1} | South{v2} | id) | goal);
+end
+
+begin nbrs
+  init initial;
+  rules = [ {goHomeWestVisited, goHomeWestUnvisited, goHomeSouthVisited,
+      goHomeSouthUnvisited, stayHome},
+    {goWestToUnvisited, goWestToVisited, goEastToUnvisited, goEastToVisited,
+      goNorthToUnvisited, goNorthToVisited, goSouthToUnvisited, goSouthToVisited,
+      westObject, eastObject, northObject, southObject} ];
+  preds = { goal, home };
+end

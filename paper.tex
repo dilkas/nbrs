@@ -37,6 +37,10 @@
   comment=[l]{\#}
 }
 
+\ttfamily
+\DeclareFontShape{OT1}{lmtt}{m}{it}
+     {<->sub*lmtt/m/sl}{}
+
 \begin{document}
 \title{Nondeterministic Bigraphical Reactive Systems for Markov Decision
   Processes\thanks{Supported by organization x.}}
@@ -55,6 +59,8 @@ The abstract should briefly summarize the contents of the paper in
 
 \section{Introduction}
 
+\subsection{Markov Decision Processes}
+
 \begin{definition}[Markov decision process] \label{mdp}
   For any finite set $X$, let $\Dist(X)$ denote the set of discrete probability
   distributions over $X$. A \emph{Markov Decision Process} is a tuple $ (S,
@@ -72,7 +78,23 @@ The abstract should briefly summarize the contents of the paper in
     reward function}.
 \end{definition}
 
+\subsection{Bigraphs}
+
 From \cite{dblp:journals/tcs/sevegnanic15}.
+From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
+
+\begin{figure}
+  \includegraphics{models/example_bigraph/foo_lhs.pdf}
+  \caption{An example bigraph.}
+  \label{example_bigraph}
+\end{figure}
+
+Consider the graphical representation of a bigraph in Fig.
+\ref{example_bigraph}. The two white dashed rectangles represent \emph{regions},
+i.e. parents of any otherwise parentless nodes. Grey dashed rectangles are
+called \emph{sites} and encode parts of the model that have been abstracted
+away. Nodes, sites, and regions are also known as \emph{places}. Two places with
+the same parent, or two points with the same link are called \emph{siblings}.
 
 \begin{definition}[concrete place graph with sharing]
   A \emph{concrete place graph with sharing}
@@ -144,11 +166,23 @@ defined by $\id_X = (\emptyset, \emptyset, \emptyset, \Id_X) : X \to X$.
     \langle m, Y \rangle \]
   consists of a concrete place graph with sharing $F^P = (V_F, \ctrl_F, \prnt_F)
   : k \to m$ and a concrete link graph $F^L = (V_F, E_F, \ctrl_F, \link_F) : X
-  \to Y$. If $X = \epsilon$, then $F$ is called \emph{ground}. We write the
-  concrete bigraph with sharing as $F = (F^P, F^L)$.
+  \to Y$. We write the concrete bigraph with sharing as $F = (F^P, F^L)$.
 \end{definition}
 
-From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
+Given a set of reaction rules, we refer to the configurations that a system may
+adopt as \emph{states}. A bigraph with inner face $\epsilon$ is called
+\emph{ground}.
+
+\begin{definition}[solid bigraph]
+  A bigraph is \emph{solid} if these conditions hold:
+  \begin{enumerate}
+  \item no regions or outer names are idle (a region is called \emph{idle}
+    if it is empty);
+  \item no two sites or inner names are siblings;
+  \item the parent of every site is a node;
+  \item no outer name is linked to an inner name.
+  \end{enumerate}
+\end{definition}
 
 \begin{definition}[reaction rule] \label{reaction_rule}
   A \emph{reaction rule} is a pair
@@ -160,21 +194,25 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
   \emph{parameter} $d : \epsilon \to \langle m, Y \rangle$. The \emph{reaction
     relation} $\longrightarrowrhd_{\mathsf{R}}$ over ground bigraphs is defined
   by
-  \[ g \longrightarrowrhd_{\mathsf{R}} g' \text{ iff } g = Dr \text{ and } g' = Dr' \]
+  \[ g \longrightarrowrhd_{\mathsf{R}} g' \text{ iff } g = D \circ r \text{ and
+    } g' = D \circ r' \]
   for some bigraph $D$ and some ground reaction rule $(r, r')$ generated from
   $\mathsf{R}$.
 \end{definition}
 
 \begin{definition}[bigraphical reactive system (BRS)]
   A \emph{bigraphical reactive system} consists of a pair $(\mathcal{B},
-  \mathcal{R})$, where $\mathcal{B}$ is a set of bigraphs and $\mathcal{R}$ is a
-  set of reaction rules defined over $\mathcal{B}$. It has a reaction relation
+  \mathcal{R})$, where $\mathcal{B}$ is a set of ground bigraphs and
+  $\mathcal{R}$ is a set of reaction rules defined over $\mathcal{B}$. It has a
+  reaction relation
   \[ \longrightarrowrhd_{\mathcal{R}} \coloneqq \bigcup_{\mathsf{R} \in
       \mathcal{R}} \longrightarrowrhd_{\mathsf{R}}, \]
   which will be written $\longrightarrowrhd$ when $\mathcal{R}$ is understood.
 \end{definition}
 
-\subsection{Probabilistic bigraphs}
+\section{Extensions to Bigraphs}
+
+\subsection{Probabilistic Bigraphs}
 
 \begin{definition}[probabilistic reaction rule]
   A \emph{probabilistic reaction rule} $\mathsf{R}$ is a triple $(R, R', p)$,
@@ -186,8 +224,8 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 \begin{definition}[probabilistic bigraphical reactive system (PBRS)]
   A \emph{probabilistic bigraphical reactive system} consists of a pair
-  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of bigraphs and
-  $\mathcal{R}$ is a set of probabilistic reaction rules defined over
+  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of ground bigraphs
+  and $\mathcal{R}$ is a set of probabilistic reaction rules defined over
   $\mathcal{B}$.
 
   Let $g, g'$ be ground bigraphs, and $\{ (r_i, r'_i, p_i) \}_{i=1}^n$ a set of
@@ -201,7 +239,7 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
   \[ p = \frac{1}{s}\sum_{(r, r', p') \in S} p'. \]
 \end{definition}
 
-\subsection{Nondeterministic bigraphs}
+\subsection{Nondeterministic Bigraphs}
 
 \begin{definition}[nondeterministic reaction rule]
   Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
@@ -213,8 +251,8 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 \begin{definition}[nondeterministic bigraphical reactive system (NBRS)]
   A \emph{nondeterministic bigraphical reactive system} consists of a pair
-  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of bigraphs and
-  $\mathcal{R}$ is a set of nondeterministic reaction rules defined over
+  $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of ground bigraphs
+  and $\mathcal{R}$ is a set of nondeterministic reaction rules defined over
   $\mathcal{B}$.
 
   Let $g, g'$ be ground bigraphs, $a \in A$ an action, and $\{ (r_i, r'_i, a,
@@ -229,7 +267,6 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
   \[ p = \frac{1}{s}\sum_{(r, r', a, p') \in S} p'. \]
 \end{definition}
 
-% TODO: states
 BigraphER \cite{DBLP:conf/cav/SevegnaniC16} supports defining predicates, i.e.,
 bigraphs that are compared to every encountered state. We can associate a reward
 with each predicate, allowing us to assign rewards to states in a flexible and
@@ -307,31 +344,74 @@ and the name of the reaction rule. Transitions from either a fully generated
 transition system or a simulation, labels from predicates, and state/transition
 rewards can be exported to the corresponding PRISM plain text formats.
 
+% TODO: introduce this
 \begin{figure}
   \includegraphics{images/interface.jpg}
   \caption{The BigraphER Jupyter interface with syntax highlighting.}
   \label{interface}
 \end{figure}
 
-\begin{figure}
-  \includegraphics{images/transitions.jpg}
-  \caption{...}
-  \label{transitions}
-\end{figure}
+\section{A Case Study in Autonomous Agents}
 
-\begin{figure}
-  \includegraphics{images/simulation.jpg}
-  \caption{...}
-  \label{simulation}
-\end{figure}
+Akin to \cite{dblp:conf/nfm/giaquintahimn18}.
 
-\begin{figure}
-  \includegraphics{images/output.jpg}
-  \caption{...}
-  \label{output}
-\end{figure}
+\subsection{\#1}
 
-\section{Case study in autonomous agents}
+Grid layout (but could be any nodes-and-edges layout, as long as it's clear how
+to go back home). Tracking visited/unvisited states. Each unvisited state has a
+probability $p$ of containing an object. The agent returns (and stays) home
+after collecting a set number of objects (easily customisable). Starting at the
+bottom left cell.
+
+\lstinputlisting[caption=Controls., captionpos=b, language=Big,
+label=agent1_controls, firstline=3, lastline=17]{models/agent1.big}
+
+We begin by introducing controls: the types of nodes, what they contain, and
+what they are linked to. The full list of controls is in Listing
+\ref{agent1_controls}. \texttt{Cell} represents a discrete location. It is
+linked to either \texttt{Visited} or \texttt{Unvisited} (initially, all except
+one cells are unvisited). \texttt{Cell}s always contain
+\texttt{Directions}, and one \texttt{Cell} contains an \texttt{Agent}. The
+\texttt{Agent} may contain an \texttt{Object}, which may contain another
+\texttt{Object}, etc. \texttt{Directions} always contain four nodes:
+\texttt{North}, \texttt{East}, \texttt{West}, \texttt{South}. A \texttt{West}
+node can be linked either to one of the two \texttt{Void}s or to an
+\texttt{East} node of a neighbouring \texttt{Cell} (and similarly with other
+directions). \texttt{Void}s represent the edges of the map. Using two
+\texttt{Void} controls prevents us from unintentionally connecting the opposite
+edges of the map. \texttt{Void1} corresponds to top and left edges, while
+\texttt{Void2} is for bottom and right.
+
+\lstinputlisting[caption=Predicates and the initial state., captionpos=b,
+language=Big, label=agent1_code, firstline=19,
+lastline=50]{models/agent1.big}
+
+Next, we define two predicates: \texttt{home} and \texttt{goal} (see Listing
+\ref{agent1_code}). The former states that the \texttt{Agent} is home
+if it is in the southwest corner of the grid,
+while the latter says that the agent should go home as soon as
+it gets one object. A larger number of objects can be set by,
+e.g., \texttt{Agent.Object.Object}. Additionally, Listing \ref{agent1_code}
+defines the initial $2 \times 2$ grid, as described previously.
+
+\lstinputlisting[caption=The action of going \texttt{north}, captionpos=b,
+language=Big, label=agent1_north, firstline=108,
+lastline=141]{models/agent1.big}
+
+Lastly, we have five actions (four for the directions, and one for
+going home). Each of the actions for directions carries three reaction
+rules: one for going to an already visited cell, one for visiting a
+cell for the first time, and one for visiting a cell for the
+first time and finding an object. We will use the rules for going north
+in Listing \ref{agent1_north} as an example. When going to an already visited
+cell, the \texttt{Agent} simply traverses a link between the \texttt{North} node
+of its previous \texttt{Cell} and the corresponding \texttt{South} node. As this
+is the only reaction rule for this situation, its probability is $1$. When
+going to an unvisited node, we equip an \texttt{Object} with probability $p$.
+Regardless of whether that happens or not, the \texttt{Cell} changes its
+status from \texttt{Unvisited} to \texttt{Visited}. % TODO: going home now
+
+\section{Conclusion}
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
