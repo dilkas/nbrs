@@ -364,7 +364,7 @@ after collecting a set number of objects (easily customisable). Starting at the
 bottom left cell.
 
 \lstinputlisting[caption=Controls., captionpos=b, language=Big,
-label=agent1_controls, firstline=3, lastline=17]{models/agent1.big}
+label=agent1_controls, firstline=3, lastline=14]{models/agent1.big}
 
 We begin by introducing controls: the types of nodes, what they contain, and
 what they are linked to. The full list of controls is in Listing
@@ -383,8 +383,8 @@ edges of the map. \texttt{Void1} corresponds to top and left edges, while
 \texttt{Void2} is for bottom and right.
 
 \lstinputlisting[caption=Predicates and the initial state., captionpos=b,
-language=Big, label=agent1_code, firstline=19,
-lastline=50]{models/agent1.big}
+language=Big, label=agent1_code, firstline=16,
+lastline=30]{models/agent1.big}
 
 Next, we define two predicates: \texttt{home} and \texttt{goal} (see Listing
 \ref{agent1_code}). The former states that the \texttt{Agent} is home
@@ -395,8 +395,8 @@ e.g., \texttt{Agent.Object.Object}. Additionally, Listing \ref{agent1_code}
 defines the initial $2 \times 2$ grid, as described previously.
 
 \lstinputlisting[caption=The action of going north, captionpos=b,
-language=Big, label=agent1_north, firstline=108,
-lastline=141]{models/agent1.big}
+language=Big, label=agent1_north, firstline=88,
+lastline=117]{models/agent1.big}
 
 Lastly, we have five actions (four for the directions, and one for
 going home). Each of the actions for directions carries three reaction
@@ -413,7 +413,7 @@ link from \texttt{Unvisited} to \texttt{Visited}.
 
 \lstinputlisting[caption=Reaction rule to stay home if a required number of
 objects is acquired., captionpos=b, language=Big, label=agent1_home,
-firstline=204, lastline=216]{models/agent1.big}
+firstline=180, lastline=183]{models/agent1.big}
 
 The action \texttt{home} has five reaction rules: going west/south to a
 visited/unvisited cell that are just like the rules in Listing
