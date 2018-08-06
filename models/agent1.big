@@ -202,12 +202,18 @@ action home
                             || Cell{v}.(Directions.(North{b} | id) | goal)
                             || Cell{v}.Directions.(South{b} | id) @ [0, 2, 1];
     react stayHome = Void1{v1}
-                    || Void2{v2}
-                    || Cell{v}.(Directions.(West{v1} | South{v2} | id) | goal)
-                    -[1.0]->
-                    Void1{v1}
-                    || Void2{v2}
-                    || Cell{v}.(Directions.(West{v1} | South{v2} | id) | goal);
+                  || Void2{v2}
+                  || Cell{v}.(Directions.(West{v1}
+                                        | South{v2}
+                                        | id)
+                            | goal)
+                  -[1.0]->
+                     Void1{v1}
+                  || Void2{v2}
+                  || Cell{v}.(Directions.(West{v1}
+                                        | South{v2}
+                                        | id)
+                            | goal);
 end
 
 begin nbrs

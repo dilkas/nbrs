@@ -394,7 +394,7 @@ it gets one object. A larger number of objects can be set by,
 e.g., \texttt{Agent.Object.Object}. Additionally, Listing \ref{agent1_code}
 defines the initial $2 \times 2$ grid, as described previously.
 
-\lstinputlisting[caption=The action of going \texttt{north}, captionpos=b,
+\lstinputlisting[caption=The action of going north, captionpos=b,
 language=Big, label=agent1_north, firstline=108,
 lastline=141]{models/agent1.big}
 
@@ -409,7 +409,17 @@ of its previous \texttt{Cell} and the corresponding \texttt{South} node. As this
 is the only reaction rule for this situation, its probability is $1$. When
 going to an unvisited node, we equip an \texttt{Object} with probability $p$.
 Regardless of whether that happens or not, the \texttt{Cell} changes its
-status from \texttt{Unvisited} to \texttt{Visited}. % TODO: going home now
+link from \texttt{Unvisited} to \texttt{Visited}.
+
+\lstinputlisting[caption=Reaction rule to stay home if a required number of
+objects is acquired., captionpos=b, language=Big, label=agent1_home,
+firstline=204, lastline=216]{models/agent1.big}
+
+The action \texttt{home} has five reaction rules: going west/south to a
+visited/unvisited cell that are just like the rules in Listing
+\ref{agent1_north}, except every mention of \texttt{Agent} is replaced with
+\texttt{goal}, and a rule to stay home if the goal is satisfied (in Listing
+\ref{agent1_home}).
 
 \section{Conclusion}
 
