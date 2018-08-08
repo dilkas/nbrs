@@ -1,5 +1,6 @@
 all: example_ts.pdf_tex
 	cd example_bigraph && make all
+	cd agent2 && make all
 
 example_ts.pdf_tex: example_ts.svg
 	inkscape -D -z --file=example_ts.svg --export-pdf=example_ts.pdf

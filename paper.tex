@@ -23,6 +23,7 @@
 
 \providecommand\longrightarrowRHD{\relbar\joinrel\relbar\joinrel\mathrel\RHD}
 \providecommand\longrightarrowrhd{\relbar\joinrel\relbar\joinrel\mathrel\rhd}
+\providecommand\longrightdoublearrowRHD{\mathrel\LHD\joinrel\relbar\joinrel\relbar\joinrel\mathrel\RHD}
 
 \makeatletter
 \providecommand*\xrightarrowRHD[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longrightarrowRHD}{#1}{#2}}
@@ -45,8 +46,8 @@
 \title{Nondeterministic Bigraphical Reactive Systems for Markov Decision
   Processes\thanks{Supported by organization x.}}
 \titlerunning{Nondeterministic BRSs for MDPs}
-\author{Paulius Dilkas \and Michele Sevegnani}
-\authorrunning{P. Dilkas \& M. Sevegnani}
+\author{Paulius Dilkas}
+\authorrunning{P. Dilkas}
 \institute{University of Glasgow, Glasgow, UK}
 \maketitle
 
@@ -84,13 +85,16 @@ From \cite{dblp:journals/tcs/sevegnanic15}.
 From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
 \begin{figure}
+  \centering
   \includegraphics{models/example_bigraph/foo_lhs.pdf}
   \caption{An example bigraph.}
   \label{example_bigraph}
 \end{figure}
 
 Consider the graphical representation of a bigraph in Fig.
-\ref{example_bigraph}. The two white dashed rectangles represent \emph{regions},
+\ref{example_bigraph}. The white ellipses are the \emph{nodes}. Each node has a
+type, called \emph{control}, denoted here by the labels \textsf{A}, \textsf{B},
+and \textsf{C}. The two white dashed rectangles represent \emph{regions},
 i.e. parents of any otherwise parentless nodes. Grey dashed rectangles are
 called \emph{sites} and encode parts of the model that have been abstracted
 away. Nodes, sites, and regions are also known as \emph{places}. Two places with
@@ -307,15 +311,17 @@ rewards of all matching predicates (and $0$ in case there are none).
 \end{example}
 
 \begin{figure}
+  \centering
   \begin{tabular}{p{0.5\textwidth}p{0.5\textwidth}}
     \begin{minipage}{0.5\textwidth}
-      \vspace{13mm}
+      \centering
       \lstinputlisting[caption=BigraphER code., captionpos=b, language=Big, label=example_listing]{models/example.big}
     \end{minipage}
     &
       \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics{models/example_ts.pdf}
+        \vspace{12mm}
+        \includegraphics[width=\textwidth]{models/example_ts.pdf}
         \caption{The full transition system.}
         \label{example_ts}
       \end{minipage}
@@ -346,6 +352,7 @@ rewards can be exported to the corresponding PRISM plain text formats.
 
 % TODO: introduce this
 \begin{figure}
+  \centering
   \includegraphics{images/interface.jpg}
   \caption{The BigraphER Jupyter interface with syntax highlighting.}
   \label{interface}
@@ -353,10 +360,11 @@ rewards can be exported to the corresponding PRISM plain text formats.
 
 \section{A Case Study in Autonomous Agents}
 
-Akin to \cite{dblp:conf/nfm/giaquintahimn18}.
+Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe \cite{koenig1998xavier}.
 
-\subsection{\#1}
+\subsection{Collecting Objects in a Grid}
 
+% TODO: what is a link, mention that it's a hyperedge (at least one node)
 Grid layout (but could be any nodes-and-edges layout, as long as it's clear how
 to go back home). Tracking visited/unvisited states. Each unvisited state has a
 probability $p$ of containing an object. The agent returns (and stays) home
@@ -366,60 +374,88 @@ bottom left cell.
 \lstinputlisting[caption=Controls., captionpos=b, language=Big,
 label=agent1_controls, firstline=3, lastline=14]{models/agent1.big}
 
-We begin by introducing controls: the types of nodes, what they contain, and
-what they are linked to. The full list of controls is in Listing
-\ref{agent1_controls}. \texttt{Cell} represents a discrete location. It is
-linked to either \texttt{Visited} or \texttt{Unvisited} (initially, all except
-one cells are unvisited). \texttt{Cell}s always contain
+We begin with a list of controls in Listing \ref{agent1_controls}. On the right
+hand side of each equal sign is the number of ports that each node of that
+control has, while the \texttt{\textbf{atomic}} keyword specifies the nodes that
+cannot contain other nodes. \texttt{Cell}s represents discrete locations. They
+are linked to either \texttt{Visited} or \texttt{Unvisited} (initially, all
+except one cells are unvisited). \texttt{Cell}s always contain
 \texttt{Directions}, and one \texttt{Cell} contains an \texttt{Agent}. The
-\texttt{Agent} may contain an \texttt{Object}, which may contain another
-\texttt{Object}, etc. \texttt{Directions} always contain four nodes:
-\texttt{North}, \texttt{East}, \texttt{West}, \texttt{South}. A \texttt{West}
-node can be linked either to one of the two \texttt{Void}s or to an
-\texttt{East} node of a neighbouring \texttt{Cell} (and similarly with other
-directions). \texttt{Void}s represent the edges of the map. Using two
-\texttt{Void} controls prevents us from unintentionally connecting the opposite
-edges of the map. \texttt{Void1} corresponds to top and left edges, while
-\texttt{Void2} is for bottom and right.
+\texttt{Agent} may contain an \texttt{Object}. In order to represent multiple
+objects, it is convenient to put the second \texttt{Object} inside the first,
+and so on. \texttt{Directions} contains a subset of the four nodes,
+corresponding to the four possible directions of travel: \texttt{North},
+\texttt{East}, \texttt{West}, \texttt{South}. We connect neighbouring
+\texttt{Cell}s by linking the \texttt{West} node of one \texttt{Cell} to the
+\texttt{East} node of another (or \texttt{North} to \texttt{South}).
 
 \lstinputlisting[caption=Predicates and the initial state., captionpos=b,
 language=Big, label=agent1_code, firstline=16,
 lastline=30]{models/agent1.big}
 
 Next, we define two predicates: \texttt{home} and \texttt{goal} (see Listing
-\ref{agent1_code}). The former states that the \texttt{Agent} is home
+\ref{agent1_code}). The former states that the agent is home
 if it is in the southwest corner of the grid,
-while the latter says that the agent should go home as soon as
-it gets one object. A larger number of objects can be set by,
-e.g., \texttt{Agent.Object.Object}. Additionally, Listing \ref{agent1_code}
-defines the initial $2 \times 2$ grid, as described previously.
+while the latter specifies a goal of collecting one object. A larger number of
+objects can be set by nesting \texttt{Object}s inside each other, e.g.,
+\texttt{Agent.Object.Object}. Additionally, Listing \ref{agent1_code} defines
+the initial $2 \times 2$ grid, as described previously.
 
-\lstinputlisting[caption=The action of going north, captionpos=b,
+\lstinputlisting[caption=The action of going north., captionpos=b,
 language=Big, label=agent1_north, firstline=88,
 lastline=117]{models/agent1.big}
 
-Lastly, we have five actions (four for the directions, and one for
-going home). Each of the actions for directions carries three reaction
-rules: one for going to an already visited cell, one for visiting a
-cell for the first time, and one for visiting a cell for the
-first time and finding an object. We will use the rules for going north
-in Listing \ref{agent1_north} as an example. When going to an already visited
-cell, the \texttt{Agent} simply traverses a link between the \texttt{North} node
-of its previous \texttt{Cell} and the corresponding \texttt{South} node. As this
-is the only reaction rule for this situation, its probability is $1$. When
-going to an unvisited node, we equip an \texttt{Object} with probability $p$.
-Regardless of whether that happens or not, the \texttt{Cell} changes its
-link from \texttt{Unvisited} to \texttt{Visited}.
+Then, we have an action for each of the four directions, each with three
+reaction rules: one for going to an already visited cell, one for visiting a
+cell for the first time, and one for visiting a cell for the first time and
+finding an object. We will use the rules for going north in Listing
+\ref{agent1_north} as an example. When going to an already visited cell, the
+\texttt{Agent} simply traverses a link between the \texttt{North} node of its
+previous \texttt{Cell} and the corresponding \texttt{South} node. As this is the
+only reaction rule for this situation, its probability is $1$. When going to an
+unvisited node, we collect an \texttt{Object} with probability $p$, or make the
+transition without getting an \texttt{Object} with probability $1-p$.
+Regardless, the \texttt{Cell} changes its link from \texttt{Unvisited} to
+\texttt{Visited}.
 
 \lstinputlisting[caption=Reaction rule to stay home if a required number of
 objects is acquired., captionpos=b, language=Big, label=agent1_home,
-firstline=180, lastline=183]{models/agent1.big}
+firstline=186, lastline=189]{models/agent1.big}
 
-The action \texttt{home} has five reaction rules: going west/south to a
-visited/unvisited cell that are just like the rules in Listing
+Lastly, we have three actions for after the agent acquires the specified number
+of objects: two for going home west or south (since these are the two directions
+necessary and sufficient to reach home), and one for staying home. The
+former type of actions have two reaction rules each, depending on whether the
+destination cell is visited or not. They are just like the rules in Listing
 \ref{agent1_north}, except every mention of \texttt{Agent} is replaced with
-\texttt{goal}, and a rule to stay home if the goal is satisfied (in Listing
-\ref{agent1_home}).
+\texttt{goal}. The rule to stay home is quite straightforward and is in
+Listing \ref{agent1_home}.
+
+\subsection{Layers of Abstraction}
+
+\lstinputlisting[caption={The initial map: three consecutive cells, the midmost
+of which has an inner room.}, captionpos=b, language=Big, label=agent2_initial,
+firstline=15, lastline=19]{models/agent2/agent.big}
+
+\lstinputlisting[caption={Two ways to generate a room, leaving one door either
+open or closed.}, captionpos=b, language=Big, label=agent2_room,
+firstline=21, lastline=48]{models/agent2/agent.big}
+
+\begin{figure}
+  \centering
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{models/agent2/goIn_lhs.pdf}
+  \end{minipage}
+  $\longrightdoublearrowRHD$
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{models/agent2/goIn_rhs.pdf}
+  \end{minipage}
+  \caption{Left to right: the reaction rule to go inside; right to left: the
+    reaction rule to go outside.}
+  \label{go_in_out}
+\end{figure}
 
 \section{Conclusion}
 

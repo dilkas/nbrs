@@ -144,7 +144,7 @@ action south
                     || Cell{v}.(Directions.(North{b} | id) | Agent.Object) @ [0, 2, 1];
 end
 
-action home
+action homeWest
     react goHomeWestVisited = Visited{v}
                             || Cell{v}.Directions.(East{b} | id)
                             || Cell{v}.(Directions.(West{b} | id) | goal)
@@ -161,6 +161,9 @@ action home
                             || Unvisited{u}
                             || Cell{v}.(Directions.(East{b} | id) | goal)
                             || Cell{v}.Directions.(West{b} | id) @ [0, 2, 1];
+end
+
+action homeSouth
     react goHomeSouthVisited = Visited{v}
                             || Cell{v}.Directions.(North{b} | id)
                             || Cell{v}.(Directions.(South{b} | id) | goal)
@@ -177,6 +180,9 @@ action home
                             || Unvisited{u}
                             || Cell{v}.(Directions.(North{b} | id) | goal)
                             || Cell{v}.Directions.(South{b} | id) @ [0, 2, 1];
+end
+
+action home
 react stayHome =
   Cell{v}.(Directions.(North{v1} | East{v2}) | goal)
   -[1.0]->

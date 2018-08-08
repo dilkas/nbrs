@@ -1,0 +1,98 @@
+# Layers of abstraction
+
+float p = 0.5; # probability of an open door
+
+ctrl Cell = 1;
+ctrl Node = 1;
+ctrl Directions = 0;
+atomic ctrl Agent = 0;
+
+atomic ctrl North = 1;
+atomic ctrl East = 1;
+atomic ctrl West = 1;
+atomic ctrl South = 1;
+
+big initial = /x /y /z (
+              Cell{x}.(Directions.East{a} | Agent)
+           || Cell{y}.(Directions.(East{b} | West{a})
+                     | Node{n}.1)
+           || Cell{z}.Directions.West{b});
+
+action room
+  react openDoor =
+    Cell{w}.(Agent | Node{n}.1 | id)
+    -[p]-> /x /y /z /a /b /c /d
+    Cell{w}.(Agent | Node{n}.(
+      # top left
+        Cell{n}.Directions.(East{a} | South{b})
+      # top right
+      | Cell{x}.Directions.(West{a} | South{c})
+      # bottom left
+      | Cell{y}.Directions.(North{b} | East{d})
+      # bottom right
+      | Cell{z}.Directions.(North{c} | West{d}))
+      | id);
+  react closedDoor =
+    Cell{w}.(Agent | Node{n}.1 | id)
+    -[1.0-p]-> /x /y /z /b /c /d
+    Cell{w}.(Agent | Node{n}.(
+      # top left
+        Cell{n}.Directions.(South{b})
+      # top right
+      | Cell{x}.Directions.(South{c})
+      # bottom left
+      | Cell{y}.Directions.(North{b} | East{d})
+      # bottom right
+      | Cell{z}.Directions.(North{c} | West{d}))
+      | id);
+end
+
+action west
+    react goWest = Cell{n1}.(Directions.(East{b} | id) | id)
+                || Cell{n2}.(Directions.(West{b} | id) | Agent | id)
+                -[1.0]->
+                   Cell{n1}.(Directions.(East{b} | id) | Agent | id)
+                || Cell{n2}.(Directions.(West{b} | id) | id);
+end
+
+action east
+    react goEast = Cell{n1}.(Directions.(East{b} | id) | Agent | id)
+                         || Cell{n2}.(Directions.(West{b} | id) | id)
+                         -[1.0]->
+                            Cell{n1}.(Directions.(East{b} | id) | id)
+                         || Cell{n2}.(Directions.(West{b} | id) | Agent | id);
+end
+
+action north
+  react goNorth =
+       Cell{n1}.(Directions.(North{b} | id) | Agent | id)
+    || Cell{n2}.(Directions.(South{b} | id) | id)
+    -[1.0]->
+       Cell{n1}.(Directions.(North{b} | id) | id)
+    || Cell{n2}.(Directions.(South{b} | id) | Agent | id);
+end
+
+action south
+    react goSouth = Cell{n1}.(Directions.(South{b} | id) | Agent | id)
+                          || Cell{n2}.(Directions.(North{b} | id) | id)
+                          -[1.0]->
+                             Cell{n1}.(Directions.(South{b} | id) | id)
+                          || Cell{n2}.(Directions.(North{b} | id) | Agent | id);
+end
+
+action goIn
+  react goIn = Cell{x}.(Agent | Node{n}.(Cell{n} | id) | id)
+               -[1.0]->
+               Cell{x}.(Node{n}.(Cell{n}.(Agent | id) | id) | id);
+end
+
+action goOut
+  react goOut = Cell{x}.(Node{n}.(Cell{n}.(Agent | id) | id) | id)
+              -[1.0]->
+              Cell{x}.(Agent | Node{n}.(Cell{n} | id) | id);
+end
+
+begin nbrs
+  init initial;
+  rules = [ {openDoor, closedDoor}, {goNorth, goEast, goWest, goSouth, goIn, goOut} ];
+end
