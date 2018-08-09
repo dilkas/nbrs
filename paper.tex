@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{wasysym}
 \usepackage[lighttt]{lmodern}
+\usepackage{siunitx}
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
 % \renewcommand\UrlFont{\color{blue}\rmfamily}
@@ -55,7 +56,8 @@
 The abstract should briefly summarize the contents of the paper in
 150--250 words.
 
-\keywords{Bigraphs \and Probabilistic semantics \and Markov decision process.}
+\keywords{Bigraphs \and Bigraphical Reactive Systems \and Probabilistic
+  semantics \and Markov decision process.}
 \end{abstract}
 
 \section{Introduction}
@@ -81,6 +83,7 @@ The abstract should briefly summarize the contents of the paper in
 
 \subsection{Bigraphs}
 
+% TODO: introduce bigrapher
 From \cite{dblp:journals/tcs/sevegnanic15}.
 From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
 
@@ -214,6 +217,13 @@ adopt as \emph{states}. A bigraph with inner face $\epsilon$ is called
   which will be written $\longrightarrowrhd$ when $\mathcal{R}$ is understood.
 \end{definition}
 
+Lastly, BigraphER supports \emph{rule priorities}
+\cite{DBLP:journals/tcs/BaetenBKW89}, i.e., a partial ordering on the reaction
+rules, where a rule of lower priority can be applied only if no rule of higher
+priority is applicable. Priorities are implemented by assigning each reaction
+rule to a \emph{priority class}, where all classes are strictly ordered, and
+reaction rules in the same class have the same priority.
+
 \section{Extensions to Bigraphs}
 
 \subsection{Probabilistic Bigraphs}
@@ -276,13 +286,6 @@ bigraphs that are compared to every encountered state. We can associate a reward
 with each predicate, allowing us to assign rewards to states in a flexible and
 semantically meaningful way: the reward of a state is simply the sum of the
 rewards of all matching predicates (and $0$ in case there are none).
-
-\begin{proposition}
-  Any MDP can be expressed as an NBRS.
-\end{proposition}
-\begin{proof}
-  Obvious.
-\end{proof}
 
 \section{Implementation}
 
@@ -360,16 +363,21 @@ rewards can be exported to the corresponding PRISM plain text formats.
 
 \section{A Case Study in Autonomous Agents}
 
-Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe \cite{koenig1998xavier}.
+% TODO: Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe \cite{koenig1998xavier}.
 
 \subsection{Collecting Objects in a Grid}
 
 % TODO: what is a link, mention that it's a hyperedge (at least one node)
-Grid layout (but could be any nodes-and-edges layout, as long as it's clear how
-to go back home). Tracking visited/unvisited states. Each unvisited state has a
-probability $p$ of containing an object. The agent returns (and stays) home
-after collecting a set number of objects (easily customisable). Starting at the
-bottom left cell.
+% TODO: explain the syntax of the language
+Our first scenario is concerned with collecting objects in a grid-like
+two-dimensional world. The agent starts in the southwest corner of the map
+(which we call \emph{home}), explores the environment until it collects a
+specified number of objects, and returns home (while possibly collecting more
+objects along the way). The model tracks which cells of the grid have been
+explored, and only the unexplored cells have a constant probability $p$ of
+rewarding the agent with an object. The desired number of objects can be easily
+changed, and the map can be customised to make some transitions unavailable
+(i.e. add walls), as long as the agent can still return home.
 
 \lstinputlisting[caption=Controls., captionpos=b, language=Big,
 label=agent1_controls, firstline=3, lastline=14]{models/agent1.big}
@@ -422,24 +430,61 @@ Regardless, the \texttt{Cell} changes its link from \texttt{Unvisited} to
 objects is acquired., captionpos=b, language=Big, label=agent1_home,
 firstline=186, lastline=189]{models/agent1.big}
 
-Lastly, we have three actions for after the agent acquires the specified number
+Lastly, we have three actions for when the agent acquires the specified number
 of objects: two for going home west or south (since these are the two directions
-necessary and sufficient to reach home), and one for staying home. The
-former type of actions have two reaction rules each, depending on whether the
+necessary and sufficient to reach home), and one for staying home. The two
+actions for going home have two reaction rules each, depending on whether the
 destination cell is visited or not. They are just like the rules in Listing
 \ref{agent1_north}, except every mention of \texttt{Agent} is replaced with
-\texttt{goal}. The rule to stay home is quite straightforward and is in
-Listing \ref{agent1_home}.
+\texttt{goal}. The rule to stay home simply says that if the agent has achieved
+the goal, and is home (characterised by a \texttt{Cell} with only two
+directions: \texttt{North} and \texttt{East}), then nothing should change (see
+Listing \ref{agent1_home}). To make the agent start heading home as soon as
+enough objects are collected, all five reaction rules related to going and
+staying home are in a higher priority class.
 
 \subsection{Layers of Abstraction}
+
+% TODO: Must mention: \cite{DBLP:conf/giscience/WaltonW12}.
+
+Our second model explores two important concepts in modelling the topology of
+space: nesting and uncertainty. Nesting is the idea that spaces can be inside
+other spaces: rooms inside floors, floors inside buildings, buildings inside
+streets, etc. A key characteristic of nested spaces is that there is a separate
+action (or several) taking you from the outer space to the inner space or vice
+versa (e.g., using a door to enter or leave a room). In the rest of the paper,
+whenever we discuss one space inside another, we will refer to the inner space
+as the \emph{room}.
+
+The other concept explored in this section is uncertainty about the topology
+itself, i.e., is the door open or closed? The implementation of this idea is
+tied to that of rooms: the inside of a room is not defined until the outer cell
+encompassing the room (i.e., the area where the door is located) is entered.
+Then, the contents of the room are chosen from a finite set of possibilities
+with a set probability distribution. After that, the room stays fixed. This
+design decision supports the reality of missions with a reasonably short
+duration: if the agent finds a locked door, it should not keep revisiting the
+door hoping for it to suddenly be open.
+
+As the ideas of collecting objects and tracking visited cells have been
+explored already, they are dropped from this model to simplify the
+implementation. The goal can simply be defined as moving from one location to
+another. We add one extra control, \texttt{Node}. While \texttt{Cell} can be
+imagined as a discrete patch of space (e.g., \SI{1}{\square\metre}),
+\texttt{Node} can be thought of as a room. While we stick to two layers
+(corridors and rooms) in this example, rooms can be freely nested: a room can
+contain any number of rooms, each of which can contain more rooms.
+
+\begin{figure}
+  \centering
+  \includegraphics{models/agent2/nesting_example/example.pdf}
+  \caption{The bigraphical structure behind nesting.}
+  \label{agent2_nesting}
+\end{figure}
 
 \lstinputlisting[caption={The initial map: three consecutive cells, the midmost
 of which has an inner room.}, captionpos=b, language=Big, label=agent2_initial,
 firstline=15, lastline=19]{models/agent2/agent.big}
-
-\lstinputlisting[caption={Two ways to generate a room, leaving one door either
-open or closed.}, captionpos=b, language=Big, label=agent2_room,
-firstline=21, lastline=48]{models/agent2/agent.big}
 
 \begin{figure}
   \centering
@@ -456,6 +501,38 @@ firstline=21, lastline=48]{models/agent2/agent.big}
     reaction rule to go outside.}
   \label{go_in_out}
 \end{figure}
+
+In order to impement nesting, a \texttt{Cell} contains a \texttt{Node}, which
+can have any number of \texttt{Cell}s of its own. Since after entering a room,
+you end up in a specific place inside the room (next to the door), we also need
+to link up the \texttt{Node} with one of the \texttt{Cell}s it contains (see
+Fig. \ref{agent2_nesting}). Both \texttt{Cell}s and \texttt{Node}s support
+having a single link for exactly this purpose. Thus, most of the \texttt{Cell}
+ports are not linked to anything, which is implemented via closures (e.g.
+\texttt{/x Cell\{x\}}). The initial map in Listing \ref{agent2_initial} has a
+corridor of three cells, with the agent on the west-most cell, and a door to a
+room in the middle cell. One moves in and out of a room via a pair of actions
+with reaction rules pictured in Fig. \ref{go_in_out}.
+
+\lstinputlisting[caption={Two ways to generate a room, leaving one door either
+open or closed.}, captionpos=b, language=Big, label=agent2_room,
+firstline=21, lastline=48]{models/agent2/agent.big}
+
+\lstinputlisting[caption={The action of going north.}, captionpos=b,
+language=Big, label=agent2_north, firstline=66,
+lastline=75]{models/agent2/agent.big}
+
+The room is a $2 \times 2$ grid of \texttt{Cell}s, which is generated when the
+\texttt{Agent} gets to a \texttt{Cell} with an empty \texttt{Node} (represented
+by \texttt{Node\{n\}.1}). In order for this to happen before any other action
+can take place, the two reaction rules in Listing \ref{agent2_room} are put on a
+higher priority class. With probability $p$, the generated room has each
+\texttt{Cell} linked to its two neighbours; and with probability $1-p$, the top
+two \texttt{Cell}s are not linked , possibly forcing the agent to choose a
+different path. Finally, we have four actions, each with a single reaction rule
+with probability $1$, corresponding to the four possible directions of travel.
+The reaction rules are very similar to those of our previous example, see
+Listing \ref{agent2_north}.
 
 \section{Conclusion}
 

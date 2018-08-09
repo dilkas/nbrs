@@ -1,0 +1,11 @@
+ctrl Cell = 1;
+ctrl Node = 1;
+
+big example = Cell{x}.Node{n}.Cell{n}.1;
+react foo = Node{x} -> Node{x};
+
+begin brs
+    init example;
+    rules = [ {foo} ];
+    preds = {example};
+end

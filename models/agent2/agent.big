@@ -65,11 +65,13 @@ end
 
 action north
   react goNorth =
-       Cell{n1}.(Directions.(North{b} | id) | Agent | id)
+       Cell{n1}.(Directions.(North{b} | id)
+               | Agent | id)
     || Cell{n2}.(Directions.(South{b} | id) | id)
     -[1.0]->
        Cell{n1}.(Directions.(North{b} | id) | id)
-    || Cell{n2}.(Directions.(South{b} | id) | Agent | id);
+    || Cell{n2}.(Directions.(South{b} | id)
+               | Agent | id);
 end
 
 action south
