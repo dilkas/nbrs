@@ -66,13 +66,17 @@
   and uncertainty in the topology of space.
 
 \keywords{Bigraphs \and Bigraphical reactive systems \and Probabilistic
-  semantics \and Discrete-time Markov chain \and Markov decision process \and
-  Spatial models.}
+  semantics \and Markov decision process \and Spatial models.}
 \end{abstract}
 
 \section{Introduction}
 
-TODO: DTMC generation, MDP generation: show, define
+% TODO: introduction
+%Bigraphical reactive systems (BRS) \cite{DBLP:books/daglib/0022395} are a
+%universal formalism for modelling interacting systems that evolve in time and
+%space.
+
+%TODO: MDP generation: show, define
 
 \subsection{Markov Decision Processes}
 
@@ -94,17 +98,6 @@ TODO: DTMC generation, MDP generation: show, define
 \end{definition}
 
 \subsection{Bigraphs}
-
-% TODO: rework, transition from brs to bigraph
-Bigraphical reactive systems (BRS) \cite{DBLP:books/daglib/0022395} are a
-universal formalism for modelling interacting systems that evolve in time and
-space. In this paper we use a generalised version of bigraphs, known as
-\emph{bigraphs with sharing}
-\cite{DBLP:phd/ethos/Sevegnani12,dblp:journals/tcs/sevegnanic15}, that uses
-directed acyclic graphs instead of forests to represent node placement, allowing
-one node to be contained in the intersection of several other nodes. In this
-section we introduce the main concepts and definitions in order to expand on
-them in Section~\ref{extensions}.
 
 We begin by introducing some notation used in the definitions. Natural numbers
 are sometimes interpreted as finite ordinals, i.e., $m = \{ 0, \dots, m - 1 \}$.
@@ -129,17 +122,20 @@ from four infinite pairwise disjoint sets, respectively $\mathcal{X},
 \end{figure}
 
 Informally, a bigraph can be thought of as a graph, where a node can be inside
-another node (in this case it can even be in an intersection of several nodes).
-However, the pictures tend to become much clearer if we instead visualise the
-nesting relations between nodes as just a different type of edges. Consider the
-bigraph in Fig.~\ref{example_bigraph}. The white ellipses are the \emph{nodes}.
-Each node has a type, called \emph{control}, and denoted here by the labels
+another node\footnote{To be specific, in this paper we extend the ideas behind
+  \emph{bigraphs with sharing}
+  \cite{DBLP:phd/ethos/Sevegnani12,dblp:journals/tcs/sevegnanic15}, where a node
+  can be contained in the intersection of several other nodes.}. However, the
+pictures tend to become much clearer if we instead visualise the nesting
+relations between nodes as just a different type of edges. Consider the bigraph
+in Fig.~\ref{example_bigraph}. The white ellipses are the \emph{nodes}. Each
+node has a type, called \emph{control}, and denoted here by the labels
 $\mathsf{A}, \mathsf{B}$, and $\mathsf{C}$. The green edges are actually
 hyperedges (can connect any positive number of nodes), and are called
 \emph{links}. In this example they are given names $\mathsf{x}, \mathsf{y}$, and
-$\mathsf{e}$. Each node has an ordered list of \emph{ports} (not pictured in
-the diagram) that can be thought of as sockets for links. Nodes of the same
-control have the same number of ports. The number of ports a node of control
+$\mathsf{e}$. Each node has an ordered list of \emph{ports} (not pictured in the
+diagram) that can be thought of as sockets for links. Nodes of the same control
+have the same number of ports. The number of ports a node of control
 $\mathsf{K}$ can have is called the \emph{arity} of $\mathsf{K}$ and is denoted
 by $\ar(\mathsf{K})$. The two white dashed rectangles represent \emph{regions},
 and in this representation are the parents to any otherwise parentless nodes.
@@ -289,9 +285,17 @@ bigraph \cite{DBLP:journals/scp/CalderKSS14,DBLP:phd/ethos/Sevegnani12}.
 Therefore, we can check each state for any satisfied predicates by solving a
 bigraph matching problem.
 
-\section{Extensions to Bigraphs} \label{extensions}
+\section{Extensions to BRSs} \label{extensions}
 
-\subsection{Probabilistic Bigraphs}
+We propose two new BRSs: one adds probabilities to reaction rules, the other
+also groups the rules into actions and supports rewards based on both reaction
+rules and predicates. The main technicality in both the definitions and the
+implementation is that after generating a list of applicable ground reaction
+rules (for a particular action, if appropriate), the probabilities need to be
+normalised so that they add to $1$, as a single reaction rule can sometimes be
+applied in multiple places, or some rules in an action may not be applicable.
+
+\subsection{Probabilistic BRS}
 
 \begin{definition}[probabilistic reaction rule]
   A \emph{probabilistic reaction rule} $\mathsf{R}$ is a triple $(R, R', p)$,
@@ -318,7 +322,7 @@ bigraph matching problem.
   \[ p = \frac{1}{s}\sum_{(r, r', p') \in S} p'. \]
 \end{definition}
 
-\subsection{Nondeterministic Bigraphs}
+\subsection{Nondeterministic BRS}
 
 \begin{definition}[nondeterministic reaction rule]
   Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
