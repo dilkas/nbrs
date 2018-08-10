@@ -1,9 +1,9 @@
-atomic ctrl A = 2;
-ctrl B = 2;
+atomic ctrl B = 2;
+ctrl A = 2;
 atomic ctrl C = 1;
 
 big s = C{a};
-react foo = B{x, y}.(A{y, e} | id) || C{e} -> B{x, y}.(A{y, e} | id) || C{e};
+react foo = A{x, y}.(B{y, e} | id) || C{e} -> A{x, y}.(B{y, e} | id) || C{e};
 
 begin brs
   init s;

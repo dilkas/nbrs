@@ -16,8 +16,6 @@
 \newcommand\ctrl{\mathit{ctrl}}
 \newcommand\prnt{\mathit{prnt}}
 \newcommand\link{\mathit{link}}
-\newcommand\points{\mathit{points}}
-\newcommand\ports{\mathit{ports}}
 \newcommand\ar{\mathit{ar}}
 \newcommand\id{\mathsf{id}}
 \newcommand\Id{\mathsf{Id}}
@@ -53,14 +51,28 @@
 \maketitle
 
 \begin{abstract}
-The abstract should briefly summarize the contents of the paper in
-150--250 words.
+  In this paper we introduce two extensions of bigraphical reactive systems
+  (BRSs) to handle probabilistic and nondeterministic behaviour, allowing BRSs
+  to be used in discrete-time Markov chain and Markov decision process (MDP)
+  generation. We extend the implementation of an open-source tool for BRSs
+  BigraphER with new syntax for MDP actions and rewards, better visualisation
+  capabilities, and data export options. Furthermore, we introduce a new
+  front-end for working with BRSs based on Jupyter notebooks, allowing the user
+  to quickly visualise bigraphs and reaction rules, simulate execution, or
+  produce a complete transition system, all within the notebook interface.
+  Finally, we demonstrate the modelling capabilities of the new system with a
+  case study on the movement and behaviour of autonomous agents, exploring ideas
+  such as collecting objects, tracking visited locations, hierarchies of spaces,
+  and uncertainty in the topology of space.
 
-\keywords{Bigraphs \and Bigraphical Reactive Systems \and Probabilistic
-  semantics \and Markov decision process.}
+\keywords{Bigraphs \and Bigraphical reactive systems \and Probabilistic
+  semantics \and Discrete-time Markov chain \and Markov decision process \and
+  Spatial models.}
 \end{abstract}
 
 \section{Introduction}
+
+TODO: DTMC generation, MDP generation: show, define
 
 \subsection{Markov Decision Processes}
 
@@ -74,7 +86,7 @@ The abstract should briefly summarize the contents of the paper in
   over $S$; $L : S \to 2^P$ is a labelling with atomic propositions.
 \end{definition}
 
-\begin{definition}[rewards]
+\begin{definition}[reward structure]
   A \emph{reward structure} for an MDP $(S, \overline{s}, A, P, L)$ is a pair
   $(\rho, \iota)$, where $\rho : S \to \mathbb{R}$ is the \emph{state reward
     function}, and $\iota : S \times A \to \mathbb{R}$ is the \emph{transition
@@ -83,9 +95,31 @@ The abstract should briefly summarize the contents of the paper in
 
 \subsection{Bigraphs}
 
-% TODO: introduce bigrapher
-From \cite{dblp:journals/tcs/sevegnanic15}.
-From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
+% TODO: rework, transition from brs to bigraph
+Bigraphical reactive systems (BRS) \cite{DBLP:books/daglib/0022395} are a
+universal formalism for modelling interacting systems that evolve in time and
+space. In this paper we use a generalised version of bigraphs, known as
+\emph{bigraphs with sharing}
+\cite{DBLP:phd/ethos/Sevegnani12,dblp:journals/tcs/sevegnanic15}, that uses
+directed acyclic graphs instead of forests to represent node placement, allowing
+one node to be contained in the intersection of several other nodes. In this
+section we introduce the main concepts and definitions in order to expand on
+them in Section~\ref{extensions}.
+
+We begin by introducing some notation used in the definitions. Natural numbers
+are sometimes interpreted as finite ordinals, i.e., $m = \{ 0, \dots, m - 1 \}$.
+We write $S \uplus T$ to indicate the union of sets known or assumed to be
+disjoint. For two functions $f$ and $g$ with disjoint domains $S$ and $T$ we
+write $f \uplus g$ for the function with domain $S \uplus T$ such that $(f
+\uplus g)|_S = f$ and $(f \uplus g)|_T = g$. The identity function on the set
+$S$ is written as $\Id_S$. Given a binary relation $\mathit{rel} \subseteq A
+\times B$, we denote the domain restriction of $\mathit{rel}$ over $S \subseteq
+A$ by $S \lhd \mathit{rel}$. Similarly, we write $\mathit{rel} \rhd S$ for the
+range restriction of $\mathit{rel}$ over $S \subseteq B$. We also denote the
+transitive closure of $\mathit{rel}$ by $\mathit{rel}^+$. In defining bigraphs
+we assume that names, node identifiers, edge identifiers, and controls are drawn
+from four infinite pairwise disjoint sets, respectively $\mathcal{X},
+\mathcal{V}, \mathcal{E}$, and $\mathcal{K}$.
 
 \begin{figure}
   \centering
@@ -94,14 +128,31 @@ From PhD thesis \cite{DBLP:phd/ethos/Sevegnani12}
   \label{example_bigraph}
 \end{figure}
 
-Consider the graphical representation of a bigraph in Fig.
-\ref{example_bigraph}. The white ellipses are the \emph{nodes}. Each node has a
-type, called \emph{control}, denoted here by the labels \textsf{A}, \textsf{B},
-and \textsf{C}. The two white dashed rectangles represent \emph{regions},
-i.e. parents of any otherwise parentless nodes. Grey dashed rectangles are
-called \emph{sites} and encode parts of the model that have been abstracted
-away. Nodes, sites, and regions are also known as \emph{places}. Two places with
-the same parent, or two points with the same link are called \emph{siblings}.
+Informally, a bigraph can be thought of as a graph, where a node can be inside
+another node (in this case it can even be in an intersection of several nodes).
+However, the pictures tend to become much clearer if we instead visualise the
+nesting relations between nodes as just a different type of edges. Consider the
+bigraph in Fig.~\ref{example_bigraph}. The white ellipses are the \emph{nodes}.
+Each node has a type, called \emph{control}, and denoted here by the labels
+$\mathsf{A}, \mathsf{B}$, and $\mathsf{C}$. The green edges are actually
+hyperedges (can connect any positive number of nodes), and are called
+\emph{links}. In this example they are given names $\mathsf{x}, \mathsf{y}$, and
+$\mathsf{e}$. Each node has an ordered list of \emph{ports} (not pictured in
+the diagram) that can be thought of as sockets for links. Nodes of the same
+control have the same number of ports. The number of ports a node of control
+$\mathsf{K}$ can have is called the \emph{arity} of $\mathsf{K}$ and is denoted
+by $\ar(\mathsf{K})$. The two white dashed rectangles represent \emph{regions},
+and in this representation are the parents to any otherwise parentless nodes.
+Grey dashed rectangles are called \emph{sites}, and encode parts of the model
+that have been abstracted away. Nodes, sites, and regions are also known as
+\emph{places}. The directed black arrows between places show the containment
+relations, e.g., the $\mathsf{A}$ node has two children (inner nodes):
+$\mathsf{B}$ and the only site in this bigraph, labelled by the number $0$.
+
+Another, more formal way to think about a bigraph is as a pair of graphs: one
+for describing the placement of nodes, and one for the links between them. This
+is the approach that will be featured in our formal definitions. We also focus
+on \emph{concrete} bigraphs, where nodes and links have distinct identifiers.
 
 \begin{definition}[concrete place graph with sharing]
   A \emph{concrete place graph with sharing}
@@ -114,13 +165,15 @@ the same parent, or two points with the same link are called \emph{siblings}.
   that is acyclic, i.e., $(v, v) \not\in \prnt_F^+$ for any $v \in V_F$.
 \end{definition}
 
+We define several operations on place graphs that will be used later.
+
 \begin{definition}[composition for place graphs with sharing]
   If $F : k \to m$ and $G : m \to n$ are two concrete place graphs with sharing
   with $V_F \cap V_G = \emptyset$, their composite
   \[ G \circ F = (V, \ctrl, \prnt) : k \to n \]
-  has nodes $V = V_F \uplus V_G$ and control map $\ctrl = \ctrl_F \uplus
-  \ctrl_G$. Its parent relation $\prnt \subseteq (k \uplus V) \times (V \uplus
-  n)$ is given by:
+  has nodes $V \coloneqq V_F \uplus V_G$ and a control map $\ctrl \coloneqq
+  \ctrl_F \uplus \ctrl_G$. Its parent relation $\prnt \subseteq (k \uplus V)
+  \times (V \uplus n)$ is given by:
   \[ \prnt \coloneqq \prnt_G^\lhd \uplus \prnt_\circ \uplus \prnt_F^\rhd, \]
   where
   \begin{align*}
@@ -131,19 +184,24 @@ the same parent, or two points with the same link are called \emph{siblings}.
 \end{definition}
 
 \begin{definition}[tensor product for place graphs]
-  If $G_0 : m_0 \to n_0$ and $G_1 : m_1 \to n_1$ are two concrete place graphs
-  with sharing with $V_F \cap V_G = \emptyset$, their tensor product
+  If 
+  \[ G_0 = (V_{G_0}, \ctrl_{G_0}, \prnt_{G_0}) : m_0 \to n_0 \]
+  and
+  \[ G_1 = (V_{G_1}, \ctrl_{G_1}, \prnt_{G_1}) : m_1 \to n_1 \]
+  are two concrete place 
+  graphs with sharing with $V_{G_0} \cap V_{G_1} = \emptyset$, their tensor
+  product
   \[ G_0 \otimes G_1 = (V, \ctrl, \prnt) : m_0 + m_1 \to n_0 + n_1 \]
-  has nodes $V = V_{G_0} \uplus V_{G_1}$ and control map $\ctrl \coloneqq
-  \ctrl_{G_0} \uplus \ctrl_{G_1}$. Its parent relation $\prnt \subseteq [(m_0 +
-  m_1) \uplus V] \times [V \uplus (n_0 + n_1)]$ is defined as
+  has nodes $V \coloneqq V_{G_0} \uplus V_{G_1}$ and a control map $\ctrl
+  \coloneqq \ctrl_{G_0} \uplus \ctrl_{G_1}$. Its parent relation $\prnt
+  \subseteq [(m_0 + m_1) \uplus V] \times [V \uplus (n_0 + n_1)]$ is defined as
   \[ \prnt_{G_0} \uplus \prnt_{G_1}^{(m_0, n_0)}, \]
   where
   \begin{align*}
     \prnt_{G_1}^{(m_0, n_0)} = &\{ (v, w) \mid (v, w) \in \prnt_{G_1} \text{ and } v, w \in V_{G_1} \} \\
-    \uplus &\{ (m_0 + i, w) \mid (i, w) \in \prnt_{G_1}, w \in V_{G_1} \text{ and } i \in m_1 \} \\
-    \uplus &\{ (v, n_0 + i) \mid (v, i) \in \prnt_{G_1}, v \in V_{G_1} \text{ and } i \in n_1 \} \\
-    \uplus &\{ (m_0 + i, n_0 + j) \mid (i, j) \in \prnt_{G_1}, i \in m_1, \text{ and } j \in n_1 \}.
+    \uplus &\{ (m_0 + i, w) \mid (i, w) \in \prnt_{G_1}, w \in V_{G_1} \text{, and } i \in m_1 \} \\
+    \uplus &\{ (v, n_0 + i) \mid (v, i) \in \prnt_{G_1}, v \in V_{G_1} \text{, and } i \in n_1 \} \\
+    \uplus &\{ (m_0 + i, n_0 + j) \mid (i, j) \in \prnt_{G_1}, i \in m_1 \text{, and } j \in n_1 \}.
   \end{align*}
 \end{definition}
 
@@ -151,21 +209,20 @@ the same parent, or two points with the same link are called \emph{siblings}.
   A \emph{concrete link graph}
   \[ F = (V_F, E_F, \ctrl_F, \link_F) : X \to Y \]
   is a quadruple having an inner face $X$ and an outer face $Y$, both finite
-  subsets of $\mathcal{X}$, called respectivelly the inner and outer names of
-  the link graph. $F$ has finite sets $V_F \subset \mathcal{V}$ of nodes and
-  $E_F \subset \mathcal{E}$ of edges, a control map $\ctrl_F : V_F \to
-  \mathcal{K}$ and a \emph{link map}
+  subsets of $\mathcal{X}$, called respectivelly the \emph{inner} and
+  \emph{outer names} of the link graph. $F$ has finite sets $V_F \subset
+  \mathcal{V}$ of nodes and $E_F \subset \mathcal{E}$ of edges, a control map
+  $\ctrl_F : V_F \to \mathcal{K}$ and a \emph{link map}
   \[ \link_F : X \uplus P_F \to E_F \uplus Y, \]
   where $P_F \coloneqq \{ (v, i) \mid i \in \ar(\ctrl_F(v)) \}$ is the set of
   ports of $F$. Thus $(v, i)$ is the $i$th port of node $v$. We shall call $X
   \uplus P_F$ the \emph{points} of $F$, and $E_F \uplus Y$ its \emph{links}.
 \end{definition}
 
-The sets of points and the set of ports of a link $l$ are defined by
-\[ \points_F(l) \coloneqq \{ p \mid \link_F(p) = l \}, \quad \ports_F(l)
-  \coloneqq \points_F(l) \setminus X. \]
-An edge is \emph{idle} if it has no points. Identities over name sets are
-defined by $\id_X = (\emptyset, \emptyset, \emptyset, \Id_X) : X \to X$.
+Two places with the same parent, or two points with the same link are called
+\emph{siblings}. A link is \emph{idle} if it has no points. Identities over
+(inner or outer) name sets are defined by $\id_X = (\emptyset, \emptyset,
+\emptyset, \Id_X) : X \to X$.
 
 \begin{definition}[concrete bigraph with sharing]
   A concrete bigraph
@@ -176,9 +233,8 @@ defined by $\id_X = (\emptyset, \emptyset, \emptyset, \Id_X) : X \to X$.
   \to Y$. We write the concrete bigraph with sharing as $F = (F^P, F^L)$.
 \end{definition}
 
-Given a set of reaction rules, we refer to the configurations that a system may
-adopt as \emph{states}. A bigraph with inner face $\epsilon$ is called
-\emph{ground}.
+We use $\epsilon$ as a shorthand for interface $\langle 0, \emptyset \rangle$. A
+bigraph with inner face $\epsilon$ is called \emph{ground}.
 
 \begin{definition}[solid bigraph]
   A bigraph is \emph{solid} if these conditions hold:
@@ -217,14 +273,23 @@ adopt as \emph{states}. A bigraph with inner face $\epsilon$ is called
   which will be written $\longrightarrowrhd$ when $\mathcal{R}$ is understood.
 \end{definition}
 
-Lastly, BigraphER supports \emph{rule priorities}
-\cite{DBLP:journals/tcs/BaetenBKW89}, i.e., a partial ordering on the reaction
+Given a set of reaction rules, we refer to the configurations that a system may
+adopt as \emph{states}. \emph{Rule priorities}
+\cite{DBLP:journals/tcs/BaetenBKW89} impose a partial ordering on the reaction
 rules, where a rule of lower priority can be applied only if no rule of higher
 priority is applicable. Priorities are implemented by assigning each reaction
 rule to a \emph{priority class}, where all classes are strictly ordered, and
 reaction rules in the same class have the same priority.
 
-\section{Extensions to Bigraphs}
+\emph{Predicates} can be used to generate labels for states (as in
+Definition~\ref{mdp}) or to ease understanding and debugging of the system. They
+are expressed in a subset of a logic called BiLog
+\cite{DBLP:conf/icalp/ConfortiMS05}, allowing any predicate to be encoded as a
+bigraph \cite{DBLP:journals/scp/CalderKSS14,DBLP:phd/ethos/Sevegnani12}.
+Therefore, we can check each state for any satisfied predicates by solving a
+bigraph matching problem.
+
+\section{Extensions to Bigraphs} \label{extensions}
 
 \subsection{Probabilistic Bigraphs}
 
@@ -244,8 +309,8 @@ reaction rules in the same class have the same priority.
 
   Let $g, g'$ be ground bigraphs, and $\{ (r_i, r'_i, p_i) \}_{i=1}^n$ a set of
   ground probabilistic reaction rules, where for each $r_i$, there exists a
-  bigraph $D_i$ such that $g = D_ir_i$. Let $S = \{ (r_i, r'_i, p_i) \mid g' =
-  D_ir'_i \}$ (for the same $D_i$), and
+  bigraph $D_i$ such that $g = D_i \circ r_i$. Let $S = \{ (r_i, r'_i, p_i) \mid
+  g' = D_i \circ r'_i \}$ (for the same $D_i$), and
   \[ s = \sum_{i=1}^n p_i. \]
   Then the reaction relation is defined as
   \[ g \xrightarrowrhd{p}_{\mathcal{R}} g' \text{ iff } S \ne \emptyset, \]
@@ -272,8 +337,8 @@ reaction rules in the same class have the same priority.
   Let $g, g'$ be ground bigraphs, $a \in A$ an action, and $\{ (r_i, r'_i, a,
   p_i) \}_{i=1}^n$ a set of ground nondeterministic reaction rules with action
   $a$, where for each $r_i$, there exists a bigraph $D_i$ such that $g =
-  D_ir_i$. Let $S = \{ (r_i, r'_i, a, p_i) \mid g' = D_ir'_i \}$ (for the same
-  $D_i$), and
+  D_i \circ r_i$. Let $S = \{ (r_i, r'_i, a, p_i) \mid g' = D_i \circ r'_i \}$
+  (for the same $D_i$), and
   \[ s = \sum_{i=1}^n p_i. \]
   Then the reaction relation for action $a$ is defined as
   \[ g \xrightarrowrhd[r(a)]{p}_{a} g' \text{ iff } S \ne \emptyset, \]
@@ -281,13 +346,14 @@ reaction rules in the same class have the same priority.
   \[ p = \frac{1}{s}\sum_{(r, r', a, p') \in S} p'. \]
 \end{definition}
 
-BigraphER \cite{DBLP:conf/cav/SevegnaniC16} supports defining predicates, i.e.,
-bigraphs that are compared to every encountered state. We can associate a reward
-with each predicate, allowing us to assign rewards to states in a flexible and
-semantically meaningful way: the reward of a state is simply the sum of the
-rewards of all matching predicates (and $0$ in case there are none).
+Finally, we can associate a reward with each predicate, allowing us to assign
+rewards to states in a flexible and semantically meaningful way: the reward of a
+state is simply the sum of the rewards of all matching predicates (and $0$ in
+case there are none).
 
 \section{Implementation}
+
+TODO: introduce BigraphER \cite{DBLP:conf/cav/SevegnaniC16}
 
 \begin{example} \label{example}
   Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2, s_3
@@ -331,9 +397,9 @@ rewards of all matching predicates (and $0$ in case there are none).
   \end{tabular}
 \end{figure}
 
-The MDP can be represented as an NBRS with BigraphER code in Listing
-\ref{example_listing}. Furthermore, the BigraphER's visualisation of the
-(automatically generated) transition system is in Fig. \ref{example_ts}.
+The MDP can be represented as an NBRS with BigraphER code in
+Listing~\ref{example_listing}. Furthermore, the BigraphER's visualisation of the
+(automatically generated) transition system is in Fig.~\ref{example_ts}.
 
 More specifically, reaction rule probabilities are represented as floating-point
 numbers inside the arrows (e.g. \texttt{-[0.7]->}), each action encompasses its
@@ -351,9 +417,12 @@ ellipse. Text inside state ellipses lists all predicates that are satisfied by
 that state. Edges from actions to states are labelled with both the probability
 and the name of the reaction rule. Transitions from either a fully generated
 transition system or a simulation, labels from predicates, and state/transition
-rewards can be exported to the corresponding PRISM plain text formats.
+rewards can be exported to the various plain text formats of a probabilistic
+model checker PRISM \cite{DBLP:conf/cav/KwiatkowskaNP11} for further
+quantitative analysis.
 
-% TODO: introduce this
+TODO: introduce jupyter (with more/new screenshots)
+
 \begin{figure}
   \centering
   \includegraphics{images/interface.jpg}
@@ -363,12 +432,13 @@ rewards can be exported to the corresponding PRISM plain text formats.
 
 \section{A Case Study in Autonomous Agents}
 
-% TODO: Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe \cite{koenig1998xavier}.
+TODO: Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe
+\cite{koenig1998xavier}.
 
 \subsection{Collecting Objects in a Grid}
 
-% TODO: what is a link, mention that it's a hyperedge (at least one node)
-% TODO: explain the syntax of the language
+TODO: explain the syntax of the language
+
 Our first scenario is concerned with collecting objects in a grid-like
 two-dimensional world. The agent starts in the southwest corner of the map
 (which we call \emph{home}), explores the environment until it collects a
@@ -382,7 +452,7 @@ changed, and the map can be customised to make some transitions unavailable
 \lstinputlisting[caption=Controls., captionpos=b, language=Big,
 label=agent1_controls, firstline=3, lastline=14]{models/agent1.big}
 
-We begin with a list of controls in Listing \ref{agent1_controls}. On the right
+We begin with a list of controls in Listing~\ref{agent1_controls}. On the right
 hand side of each equal sign is the number of ports that each node of that
 control has, while the \texttt{\textbf{atomic}} keyword specifies the nodes that
 cannot contain other nodes. \texttt{Cell}s represents discrete locations. They
@@ -401,13 +471,13 @@ corresponding to the four possible directions of travel: \texttt{North},
 language=Big, label=agent1_code, firstline=16,
 lastline=30]{models/agent1.big}
 
-Next, we define two predicates: \texttt{home} and \texttt{goal} (see Listing
-\ref{agent1_code}). The former states that the agent is home
-if it is in the southwest corner of the grid,
-while the latter specifies a goal of collecting one object. A larger number of
-objects can be set by nesting \texttt{Object}s inside each other, e.g.,
-\texttt{Agent.Object.Object}. Additionally, Listing \ref{agent1_code} defines
-the initial $2 \times 2$ grid, as described previously.
+Next, we define two predicates: \texttt{home} and \texttt{goal} (see
+Listing~\ref{agent1_code}). The former states that the agent is home if it is in
+the southwest corner of the grid, while the latter specifies a goal of
+collecting one object. A larger number of objects can be set by nesting
+\texttt{Object}s inside each other, e.g., \texttt{Agent.Object.Object}.
+Additionally, Listing~\ref{agent1_code} defines the initial $2 \times 2$ grid,
+as described previously.
 
 \lstinputlisting[caption=The action of going north., captionpos=b,
 language=Big, label=agent1_north, firstline=88,
@@ -416,13 +486,13 @@ lastline=117]{models/agent1.big}
 Then, we have an action for each of the four directions, each with three
 reaction rules: one for going to an already visited cell, one for visiting a
 cell for the first time, and one for visiting a cell for the first time and
-finding an object. We will use the rules for going north in Listing
-\ref{agent1_north} as an example. When going to an already visited cell, the
-\texttt{Agent} simply traverses a link between the \texttt{North} node of its
-previous \texttt{Cell} and the corresponding \texttt{South} node. As this is the
-only reaction rule for this situation, its probability is $1$. When going to an
-unvisited node, we collect an \texttt{Object} with probability $p$, or make the
-transition without getting an \texttt{Object} with probability $1-p$.
+finding an object. We will use the rules for going north in
+Listing~\ref{agent1_north} as an example. When going to an already visited cell,
+the \texttt{Agent} simply traverses a link between the \texttt{North} node of
+its previous \texttt{Cell} and the corresponding \texttt{South} node. As this is
+the only reaction rule for this situation, its probability is $1$. When going to
+an unvisited node, we collect an \texttt{Object} with probability $p$, or make
+the transition without getting an \texttt{Object} with probability $1-p$.
 Regardless, the \texttt{Cell} changes its link from \texttt{Unvisited} to
 \texttt{Visited}.
 
@@ -434,18 +504,18 @@ Lastly, we have three actions for when the agent acquires the specified number
 of objects: two for going home west or south (since these are the two directions
 necessary and sufficient to reach home), and one for staying home. The two
 actions for going home have two reaction rules each, depending on whether the
-destination cell is visited or not. They are just like the rules in Listing
-\ref{agent1_north}, except every mention of \texttt{Agent} is replaced with
-\texttt{goal}. The rule to stay home simply says that if the agent has achieved
-the goal, and is home (characterised by a \texttt{Cell} with only two
+destination cell is visited or not. They are just like the rules in
+Listing~\ref{agent1_north}, except every mention of \texttt{Agent} is replaced
+with \texttt{goal}. The rule to stay home simply says that if the agent has
+achieved the goal, and is home (characterised by a \texttt{Cell} with only two
 directions: \texttt{North} and \texttt{East}), then nothing should change (see
-Listing \ref{agent1_home}). To make the agent start heading home as soon as
+Listing~\ref{agent1_home}). To make the agent start heading home as soon as
 enough objects are collected, all five reaction rules related to going and
 staying home are in a higher priority class.
 
 \subsection{Layers of Abstraction}
 
-% TODO: Must mention: \cite{DBLP:conf/giscience/WaltonW12}.
+TODO: Should mention \cite{DBLP:conf/giscience/WaltonW12}.
 
 Our second model explores two important concepts in modelling the topology of
 space: nesting and uncertainty. Nesting is the idea that spaces can be inside
@@ -506,13 +576,13 @@ In order to impement nesting, a \texttt{Cell} contains a \texttt{Node}, which
 can have any number of \texttt{Cell}s of its own. Since after entering a room,
 you end up in a specific place inside the room (next to the door), we also need
 to link up the \texttt{Node} with one of the \texttt{Cell}s it contains (see
-Fig. \ref{agent2_nesting}). Both \texttt{Cell}s and \texttt{Node}s support
+Fig.~\ref{agent2_nesting}). Both \texttt{Cell}s and \texttt{Node}s support
 having a single link for exactly this purpose. Thus, most of the \texttt{Cell}
 ports are not linked to anything, which is implemented via closures (e.g.
-\texttt{/x Cell\{x\}}). The initial map in Listing \ref{agent2_initial} has a
+\texttt{/x Cell\{x\}}). The initial map in Listing~\ref{agent2_initial} has a
 corridor of three cells, with the agent on the west-most cell, and a door to a
 room in the middle cell. One moves in and out of a room via a pair of actions
-with reaction rules pictured in Fig. \ref{go_in_out}.
+with reaction rules pictured in Fig.~\ref{go_in_out}.
 
 \lstinputlisting[caption={Two ways to generate a room, leaving one door either
 open or closed.}, captionpos=b, language=Big, label=agent2_room,
@@ -524,15 +594,18 @@ lastline=75]{models/agent2/agent.big}
 
 The room is a $2 \times 2$ grid of \texttt{Cell}s, which is generated when the
 \texttt{Agent} gets to a \texttt{Cell} with an empty \texttt{Node} (represented
-by \texttt{Node\{n\}.1}). In order for this to happen before any other action
-can take place, the two reaction rules in Listing \ref{agent2_room} are put on a
-higher priority class. With probability $p$, the generated room has each
-\texttt{Cell} linked to its two neighbours; and with probability $1-p$, the top
-two \texttt{Cell}s are not linked , possibly forcing the agent to choose a
+by \texttt{Node\{n\}.1})\footnote{Multiple different rooms can be implemented by
+having each previously empty \texttt{Node} contain a node of different control.
+This way a different probability distribution (with different possible outcomes)
+can be assigned to each room.}. In order for this to happen before any other
+action can take place, the two reaction rules in Listing~\ref{agent2_room} are
+put on a higher priority class. With probability $p$, the generated room has
+each \texttt{Cell} linked to its two neighbours; and with probability $1-p$, the
+top two \texttt{Cell}s are not linked, possibly forcing the agent to choose a
 different path. Finally, we have four actions, each with a single reaction rule
 with probability $1$, corresponding to the four possible directions of travel.
 The reaction rules are very similar to those of our previous example, see
-Listing \ref{agent2_north}.
+Listing~\ref{agent2_north}.
 
 \section{Conclusion}
 
