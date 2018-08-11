@@ -8,9 +8,10 @@
 \usepackage{wasysym}
 \usepackage[lighttt]{lmodern}
 \usepackage{siunitx}
+\usepackage{hyperref}
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
-% \renewcommand\UrlFont{\color{blue}\rmfamily}
+ \renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \newcommand\Dist{\mathit{Dist}}
 \newcommand\ctrl{\mathit{ctrl}}
@@ -205,7 +206,7 @@ We define several operations on place graphs that will be used later.
   A \emph{concrete link graph}
   \[ F = (V_F, E_F, \ctrl_F, \link_F) : X \to Y \]
   is a quadruple having an inner face $X$ and an outer face $Y$, both finite
-  subsets of $\mathcal{X}$, called respectivelly the \emph{inner} and
+  subsets of $\mathcal{X}$, called respectively the \emph{inner} and
   \emph{outer names} of the link graph. $F$ has finite sets $V_F \subset
   \mathcal{V}$ of nodes and $E_F \subset \mathcal{E}$ of edges, a control map
   $\ctrl_F : V_F \to \mathcal{K}$ and a \emph{link map}
@@ -328,8 +329,8 @@ applied in multiple places, or some rules in an action may not be applicable.
   Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
   $\mathsf{R}$ is a tuple $(R, R', a, p)$, where $(R, R', p)$ is a probabilistic
   reaction rule, and $a \in A$ is an action. We also define a \emph{reaction
-    reward function} $r : A \to \mathbb{R}$ that assigns a reward/cost to each
-  action.
+    reward function} $r : A \to \mathbb{R}$ that assigns a reward or cost to
+  each action.
 \end{definition}
 
 \begin{definition}[nondeterministic bigraphical reactive system (NBRS)]
@@ -357,7 +358,7 @@ case there are none).
 
 \section{Implementation}
 
-TODO: introduce BigraphER \cite{DBLP:conf/cav/SevegnaniC16}
+% TODO: introduce BigraphER \cite{DBLP:conf/cav/SevegnaniC16} and its syntax
 
 \begin{example} \label{example}
   Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2, s_3
@@ -402,8 +403,8 @@ TODO: introduce BigraphER \cite{DBLP:conf/cav/SevegnaniC16}
 \end{figure}
 
 The MDP can be represented as an NBRS with BigraphER code in
-Listing~\ref{example_listing}. Furthermore, the BigraphER's visualisation of the
-(automatically generated) transition system is in Fig.~\ref{example_ts}.
+Listing~\ref{example_listing}. BigraphER can construct and visualise the full
+transition system, as in Fig.~\ref{example_ts}.
 
 More specifically, reaction rule probabilities are represented as floating-point
 numbers inside the arrows (e.g. \texttt{-[0.7]->}), each action encompasses its
@@ -417,22 +418,56 @@ but are listed on the \texttt{\textbf{preds}} line of the \texttt{\textbf{begin
 
 Visually, each state is represented by a white ellipse (the starting state is
 highlighted with a thicker border), and each action (per state) is a grey
-ellipse. Text inside state ellipses lists all predicates that are satisfied by
-that state. Edges from actions to states are labelled with both the probability
-and the name of the reaction rule. Transitions from either a fully generated
-transition system or a simulation, labels from predicates, and state/transition
-rewards can be exported to the various plain text formats of a probabilistic
-model checker PRISM \cite{DBLP:conf/cav/KwiatkowskaNP11} for further
-quantitative analysis.
+ellipse. The labels inside state ellipses list all predicates that are
+satisfied by that state. Edges from actions to states are labelled with both the
+probability and the name of the reaction rule. Transitions from either a fully
+generated transition system or a simulation, labels from predicates, and
+state/transition rewards can be exported to the various plain text formats of a
+probabilistic model checker PRISM \cite{DBLP:conf/cav/KwiatkowskaNP11} for
+further quantitative analysis.
 
-TODO: introduce jupyter (with more/new screenshots)
+\subsection{Front end}
 
 \begin{figure}
   \centering
-  \includegraphics{images/interface.jpg}
-  \caption{The BigraphER Jupyter interface with syntax highlighting.}
+  \includegraphics[width=\textwidth]{images/jupyter.jpg}
+  \caption{The BigraphER Jupyter notebook interface with syntax highlighting.}
   \label{interface}
 \end{figure}
+
+We introduce a new front end to BigraphER based on Jupyter notebooks
+\cite{DBLP:conf/elpub/KluyverRPGBFKHG16}. The BigraphER kernel is an extension
+to the OCaml kernel\footnote{\url{https://github.com/akabe/ocaml-jupyter}} and
+is available on
+GitHub\footnote{\url{https://github.com/dilkas/bigrapher-jupyter}}. It supports
+a similar workflow to that of Jupyter notebooks for other languages, allowing
+the user to divide the code into multiple \emph{cells} and have the definitions
+persist in a \emph{buffer} to be used later. By default, the output of each cell
+displays the graphical representation of all bigraphs and reaction rules defined
+in that cell (see Fig. \ref{interface} for an example). The generated images are
+stored in a local directory \texttt{jupyter-images/}. The kernel also supports a
+number of \emph{magics}, i.e., custom commands that can be used at the top of a
+cell:
+
+\begin{description}
+  \item[\texttt{\%states}] produces a state transition diagram (similar to the
+    one in Fig. \ref{example_ts}). Mousing over a state shows what that
+    state looks like as a bigraph.
+  \item[\texttt{\%simulate n}] runs a simulation for \texttt{n} steps, when used
+    on non-stochastic models. For stochastic BRSs
+    \cite{DBLP:journals/entcs/KrivineMT08}, \texttt{n} is interpreted as a
+    floating-point number, representing maximum simulation time. The produced
+    diagram is a single path through the transition system with the same
+    mouse-over functionality.
+  \item[\texttt{\%output}] displays the full output produced by BigraphER. By
+    default, only errors are displayed in the notebook.
+  \item[\texttt{\%ocaml}] allows full backward compatibility with the OCaml
+    kernel, including auto-complete and integrated documentation features that
+    have been extended to the BigraphER OCaml API as well as plotting support
+    with Archimedes\footnote{\url{http://archimedes.forge.ocamlcore.org/}}.
+  \item[\texttt{\%clear}] clears the buffer before interpreting the code from
+    the current cell.
+\end{description}
 
 \section{A Case Study in Autonomous Agents}
 
@@ -440,8 +475,6 @@ TODO: Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe
 \cite{koenig1998xavier}.
 
 \subsection{Collecting Objects in a Grid}
-
-TODO: explain the syntax of the language
 
 Our first scenario is concerned with collecting objects in a grid-like
 two-dimensional world. The agent starts in the southwest corner of the map
@@ -576,7 +609,7 @@ firstline=15, lastline=19]{models/agent2/agent.big}
   \label{go_in_out}
 \end{figure}
 
-In order to impement nesting, a \texttt{Cell} contains a \texttt{Node}, which
+In order to implement nesting, a \texttt{Cell} contains a \texttt{Node}, which
 can have any number of \texttt{Cell}s of its own. Since after entering a room,
 you end up in a specific place inside the room (next to the door), we also need
 to link up the \texttt{Node} with one of the \texttt{Cell}s it contains (see
