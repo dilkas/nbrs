@@ -358,11 +358,19 @@ case there are none).
 
 \section{Implementation}
 
-% TODO: introduce BigraphER \cite{DBLP:conf/cav/SevegnaniC16} and its syntax
+The described extensions have been implemented in an open-source tool for BRSs
+BigraphER \cite{DBLP:conf/cav/SevegnaniC16}. We refer the interested reader to
+the paper on BigraphER \cite{DBLP:conf/cav/SevegnaniC16}, the related PhD thesis
+\cite{DBLP:phd/ethos/Sevegnani12}, and online
+resources\footnote{\url{http://www.dcs.gla.ac.uk/~michele/bigrapher.html}} for
+further information on the syntax and capabilities of the software. In this
+section we will introduce the new features of BigraphER by using a simple MDP as
+an example.
 
 \begin{example} \label{example}
   Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2, s_3
-  \}$, $\overline{s} = s_0$, $A = \{ a, b, c \}$, and $P, L$ defined as follows:
+  \}$, $\overline{s} = s_0$, $A = \{ a, b, c \}$, and $P, L$ are defined as
+  follows:
   \begin{equation*}
     \begin{split}
       P(s_0, a) &= [s_1 \mapsto 1], \\
@@ -403,25 +411,23 @@ case there are none).
 \end{figure}
 
 The MDP can be represented as an NBRS with BigraphER code in
-Listing~\ref{example_listing}. BigraphER can construct and visualise the full
-transition system, as in Fig.~\ref{example_ts}.
+Listing~\ref{example_listing}. More specifically, reaction rule probabilities
+are represented as floating-point numbers inside the arrows (e.g.
+\texttt{-[0.7]->}), each action encompasses its reaction rules with
+\texttt{\textbf{action} actionName} and \texttt{\textbf{end}}. Rewards can be
+added to actions simply by inserting an integer enclosed in squared brackets
+after the action name (e.g. \texttt{\textbf{action} b[1]}). Lastly, predicate
+rewards have the same format, but are listed on the \texttt{\textbf{preds}} line
+of the \texttt{\textbf{begin nbrs}}---\texttt{\textbf{end}} block (e.g.
+\texttt{\textbf{preds} = \{heads[3]\};}).
 
-More specifically, reaction rule probabilities are represented as floating-point
-numbers inside the arrows (e.g. \texttt{-[0.7]->}), each action encompasses its
-reaction rules with \texttt{\textbf{action} actionName} and
-\texttt{\textbf{end}}. Rewards can be added to actions simply by inserting an
-integer enclosed in squared brackets after the action name (e.g.
-\texttt{\textbf{action} b[1]}). Lastly, predicate rewards have the same format,
-but are listed on the \texttt{\textbf{preds}} line of the \texttt{\textbf{begin
-    nbrs}}---\texttt{\textbf{end}} block (e.g. \texttt{\textbf{preds} =
-  \{heads[3]\};}).
-
-Visually, each state is represented by a white ellipse (the starting state is
-highlighted with a thicker border), and each action (per state) is a grey
-ellipse. The labels inside state ellipses list all predicates that are
-satisfied by that state. Edges from actions to states are labelled with both the
-probability and the name of the reaction rule. Transitions from either a fully
-generated transition system or a simulation, labels from predicates, and
+BigraphER can construct and visualise the full transition system (see
+Fig.~\ref{example_ts}). Each state is represented by a white ellipse (the
+starting state is highlighted with a thicker border), and each action (per
+state) is a grey ellipse. The labels inside state ellipses list all predicates
+that are satisfied by that state. Edges from actions to states are labelled with
+both the probability and the name of the reaction rule. Transitions from either
+a fully generated transition system or a simulation, labels from predicates, and
 state/transition rewards can be exported to the various plain text formats of a
 probabilistic model checker PRISM \cite{DBLP:conf/cav/KwiatkowskaNP11} for
 further quantitative analysis.
