@@ -77,8 +77,6 @@
 %universal formalism for modelling interacting systems that evolve in time and
 %space.
 
-%TODO: MDP generation: show, define
-
 \subsection{Markov Decision Processes}
 
 \begin{definition}[Markov decision process] \label{mdp}
@@ -212,7 +210,7 @@ We define several operations on place graphs that will be used later.
   $\ctrl_F : V_F \to \mathcal{K}$ and a \emph{link map}
   \[ \link_F : X \uplus P_F \to E_F \uplus Y, \]
   where $P_F \coloneqq \{ (v, i) \mid i \in \ar(\ctrl_F(v)) \}$ is the set of
-  ports of $F$. Thus $(v, i)$ is the $i$th port of node $v$. We shall call $X
+  ports of $F$. Thus, $(v, i)$ is the $i$th port of node $v$. We shall call $X
   \uplus P_F$ the \emph{points} of $F$, and $E_F \uplus Y$ its \emph{links}.
 \end{definition}
 
@@ -477,20 +475,32 @@ cell:
 
 \section{A Case Study in Autonomous Agents}
 
-TODO: Akin to \cite{dblp:conf/nfm/giaquintahimn18} and maybe
-\cite{koenig1998xavier}.
+In order to demonstrate the use of bigraphs in modelling probabilistic
+processes with nondeterminism, we present two examples of agent movement
+planning in two dimensions. The examples have different sources of probabilistic
+behaviour and explore topics such as tracking visited locations and uncertainty
+about the topology.
+
+% TODO advantages: more visual/realistic than a vector of numbers, rewards and
+% transition rules can be generated with a higher degree of automation, less
+% code, more flexible (changing size of the grid); disadvantages: constant
+% probability (without hacking)
+
+% TODO xavier \cite{koenig1998xavier}
 
 \subsection{Collecting Objects in a Grid}
 
 Our first scenario is concerned with collecting objects in a grid-like
-two-dimensional world. The agent starts in the southwest corner of the map
-(which we call \emph{home}), explores the environment until it collects a
-specified number of objects, and returns home (while possibly collecting more
-objects along the way). The model tracks which cells of the grid have been
-explored, and only the unexplored cells have a constant probability $p$ of
-rewarding the agent with an object. The desired number of objects can be easily
-changed, and the map can be customised to make some transitions unavailable
-(i.e. add walls), as long as the agent can still return home.
+two-dimensional world and is inspired by similar scenarios modelled using PRISM
+\cite{dblp:conf/nfm/giaquintahimn18,DBLP:conf/spin/HoffmannIMNV16}. The agent
+starts in the southwest corner of the map (which we call \emph{home}), explores
+the environment until it collects a specified number of objects, and returns
+home (while possibly collecting more objects along the way). The model tracks
+which cells of the grid have been explored, and only the unexplored cells have a
+constant probability $p$ of rewarding the agent with an object. The desired
+number of objects can be easily changed, and the map can be customised to make
+some transitions unavailable (i.e. add walls), as long as the agent can still
+return home.
 
 \lstinputlisting[caption=Controls., captionpos=b, language=Big,
 label=agent1_controls, firstline=3, lastline=14]{models/agent1.big}
@@ -558,16 +568,20 @@ staying home are in a higher priority class.
 
 \subsection{Layers of Abstraction}
 
-TODO: Should mention \cite{DBLP:conf/giscience/WaltonW12}.
-
 Our second model explores two important concepts in modelling the topology of
 space: nesting and uncertainty. Nesting is the idea that spaces can be inside
 other spaces: rooms inside floors, floors inside buildings, buildings inside
 streets, etc. A key characteristic of nested spaces is that there is a separate
 action (or several) taking you from the outer space to the inner space or vice
 versa (e.g., using a door to enter or leave a room). In the rest of the paper,
-whenever we discuss one space inside another, we will refer to the inner space
-as the \emph{room}.
+whenever we discuss one space nested inside another, we will refer to the inner
+space as the \emph{room}. While nesting has been modelled using bigraphs before
+\cite{DBLP:conf/giscience/WaltonW12}, our approach models each room not as a
+single entity, but rather as an interconnected collection of smaller spaces,
+which we continue to call \emph{cells}. Thus, it is not enough to be in the
+hallway in order to enter a room, one needs to be next to the door. Similarly,
+after entering a room, the agent is positioned next to the other side of the
+door.
 
 The other concept explored in this section is uncertainty about the topology
 itself, i.e., is the door open or closed? The implementation of this idea is
@@ -580,7 +594,7 @@ duration: if the agent finds a locked door, it should not keep revisiting the
 door hoping for it to suddenly be open.
 
 As the ideas of collecting objects and tracking visited cells have been
-explored already, they are dropped from this model to simplify the
+explored already, they are dropped from this model in order to simplify the
 implementation. The goal can simply be defined as moving from one location to
 another. We add one extra control, \texttt{Node}. While \texttt{Cell} can be
 imagined as a discrete patch of space (e.g., \SI{1}{\square\metre}),
@@ -615,17 +629,18 @@ firstline=15, lastline=19]{models/agent2/agent.big}
   \label{go_in_out}
 \end{figure}
 
-In order to implement nesting, a \texttt{Cell} contains a \texttt{Node}, which
-can have any number of \texttt{Cell}s of its own. Since after entering a room,
-you end up in a specific place inside the room (next to the door), we also need
-to link up the \texttt{Node} with one of the \texttt{Cell}s it contains (see
-Fig.~\ref{agent2_nesting}). Both \texttt{Cell}s and \texttt{Node}s support
-having a single link for exactly this purpose. Thus, most of the \texttt{Cell}
-ports are not linked to anything, which is implemented via closures (e.g.
-\texttt{/x Cell\{x\}}). The initial map in Listing~\ref{agent2_initial} has a
-corridor of three cells, with the agent on the west-most cell, and a door to a
-room in the middle cell. One moves in and out of a room via a pair of actions
-with reaction rules pictured in Fig.~\ref{go_in_out}.
+In order to implement nesting, we put a \texttt{Node} (representing a room)
+inside a \texttt{Cell}, which has the ``door'' to that room (see Fig.
+\ref{agent2_nesting}). The \texttt{Node} can have its own collection of
+\texttt{Cell}s, describing the topology of the room. One of these \texttt{Cell}s
+is linked to the \texttt{Node}, representing the \texttt{Cell} closest to the
+door from the inside of the room. Thus, both \texttt{Node}s and \texttt{Cell}s
+have arity $1$ for exactly this linking. \texttt{Cell} ports not linked to
+anything are implemented using closures (e.g. \texttt{/x Cell\{x\}}). The
+initial map in Listing~\ref{agent2_initial} has a corridor of three cells with
+the agent on the west-most cell and a door to a room in the middle cell. One
+moves in and out of a room using a pair of actions with reaction rules pictured
+in Fig.~\ref{go_in_out}.
 
 \lstinputlisting[caption={Two ways to generate a room, leaving one door either
 open or closed.}, captionpos=b, language=Big, label=agent2_room,
@@ -640,17 +655,19 @@ The room is a $2 \times 2$ grid of \texttt{Cell}s, which is generated when the
 by \texttt{Node\{n\}.1})\footnote{Multiple different rooms can be implemented by
 having each previously empty \texttt{Node} contain a node of different control.
 This way a different probability distribution (with different possible outcomes)
-can be assigned to each room.}. In order for this to happen before any other
-action can take place, the two reaction rules in Listing~\ref{agent2_room} are
-put on a higher priority class. With probability $p$, the generated room has
+can be assigned to each room.}. In order for the room to be generated before any
+other action can take place, the two reaction rules in Listing~\ref{agent2_room}
+are put on a higher priority class. With probability $p$, the generated room has
 each \texttt{Cell} linked to its two neighbours; and with probability $1-p$, the
 top two \texttt{Cell}s are not linked, possibly forcing the agent to choose a
 different path. Finally, we have four actions, each with a single reaction rule
 with probability $1$, corresponding to the four possible directions of travel.
-The reaction rules are very similar to those of our previous example, see
-Listing~\ref{agent2_north}.
+The reaction rules are very similar to those of our previous example, an example
+of which can be found in Listing~\ref{agent2_north}.
 
 \section{Conclusion}
+
+BIG TODO!
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
