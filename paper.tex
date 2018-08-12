@@ -9,9 +9,10 @@
 \usepackage[lighttt]{lmodern}
 \usepackage{siunitx}
 \usepackage{hyperref}
-% If you use the hyperref package, please uncomment the following line
-% to display URLs in blue roman font according to Springer's eBook style:
- \renewcommand\UrlFont{\color{blue}\rmfamily}
+\usepackage{tikz}
+\usepackage{phaistos}
+
+\renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \newcommand\Dist{\mathit{Dist}}
 \newcommand\ctrl{\mathit{ctrl}}
@@ -43,6 +44,7 @@
      {<->sub*lmtt/m/sl}{}
 
 \begin{document}
+
 \title{Nondeterministic Bigraphical Reactive Systems for Markov Decision
   Processes\thanks{Supported by organization x.}}
 \titlerunning{Nondeterministic BRSs for MDPs}
@@ -481,11 +483,6 @@ planning in two dimensions. The examples have different sources of probabilistic
 behaviour and explore topics such as tracking visited locations and uncertainty
 about the topology.
 
-% TODO advantages: more visual/realistic than a vector of numbers, rewards and
-% transition rules can be generated with a higher degree of automation, less
-% code, more flexible (changing size of the grid); disadvantages: constant
-% probability (without hacking)
-
 % TODO xavier \cite{koenig1998xavier}
 
 \subsection{Collecting Objects in a Grid}
@@ -642,6 +639,28 @@ the agent on the west-most cell and a door to a room in the middle cell. One
 moves in and out of a room using a pair of actions with reaction rules pictured
 in Fig.~\ref{go_in_out}.
 
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    % walls
+    \draw (3, 2) -- (3, 0) -- (1, 0) -- (1, 2) -- (0, 2) -- (0, 3) -- (3, 3) -- (3, 2) -- (2, 2);
+    \draw[brown,ultra thick] (1, 2) -- (2, 2);
+    % the door
+    \draw[red,ultra thick,dashed] (2, 2) -- (2, 1);
+    % the background grid
+    \draw[gray,very thin] (1, 3) -- (1, 2);
+    \draw[gray,very thin] (2, 3) -- (2, 2);
+    \draw[gray,very thin] (1, 1) -- (3, 1);
+    \draw[gray,very thin] (2, 1) -- (2, 0);
+    % the agent
+    \node at (0.5, 2.3) {\PHchild};
+  \end{tikzpicture}
+  \caption{The full map. The agent is in the top left cell. There is a thick
+    brown door connecting the middle cell of the top row with a $2 \times 2$
+    room below. The red dashed wall exists with probability $1-p$.}
+  \label{agent2_map}
+\end{figure}
+
 \lstinputlisting[caption={Two ways to generate a room, leaving one door either
 open or closed.}, captionpos=b, language=Big, label=agent2_room,
 firstline=21, lastline=48]{models/agent2/agent.big}
@@ -660,14 +679,18 @@ other action can take place, the two reaction rules in Listing~\ref{agent2_room}
 are put on a higher priority class. With probability $p$, the generated room has
 each \texttt{Cell} linked to its two neighbours; and with probability $1-p$, the
 top two \texttt{Cell}s are not linked, possibly forcing the agent to choose a
-different path. Finally, we have four actions, each with a single reaction rule
-with probability $1$, corresponding to the four possible directions of travel.
-The reaction rules are very similar to those of our previous example, an example
-of which can be found in Listing~\ref{agent2_north}.
+different path (see Fig. \ref{agent2_map}). Finally, we have four actions, each
+with a single reaction rule with probability $1$, corresponding to the four
+possible directions of travel. The reaction rules are very similar to those of
+our previous example, an example of which can be found in
+Listing~\ref{agent2_north}.
 
 \section{Conclusion}
 
-BIG TODO!
+% TODO advantages: more visual/realistic than a vector of numbers, rewards and
+% transition rules can be generated with a higher degree of automation, less
+% code, more flexible (changing size of the grid); disadvantages: constant
+% probability (without hacking)
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
