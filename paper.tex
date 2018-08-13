@@ -12,6 +12,8 @@
 \usepackage{tikz}
 \usepackage{phaistos}
 
+\usetikzlibrary{shapes,arrows.meta}
+
 \renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \newcommand\Dist{\mathit{Dist}}
@@ -82,14 +84,18 @@
 
 \subsection{Markov Decision Processes}
 
-% TODO: short intro on MDPs with references to the literature, why they are
-% important
-% TODO: turn the door into an actual door
-
-MDPs have been used to solve a wide range of problems: optimising airline yield
-management \cite{DBLP:journals/transci/LautenbacherS99}, constructing optimal
-dialogue strategies \cite{658989,DBLP:conf/icassp/LevinPE98}, electricity supply
-bidding \cite{867150}, and many others.
+Markov decision processes \cite{bellman1957markovian,howard1960dynamic} provide
+a way to model decision making in situations with both probabilistic outcomes
+and nondeterministic decision making. They have been used to solve a wide range
+of problems: optimising airline yield management
+\cite{DBLP:journals/transci/LautenbacherS99}, constructing optimal dialogue
+strategies \cite{658989,DBLP:conf/icassp/LevinPE98}, electricity supply bidding
+\cite{867150}, and many others
+\cite{DBLP:journals/questa/StidhamW93,white1985real,white1988further,white1993survey}.
+Furthermore, MDPs have been extended in multiple ways, each extension bringing
+its own applications: constrained MDPs \cite{altman1999constrained}, partially
+observable MDPs \cite{astrom1965optimal}, fuzzy MDPs \cite{fakoor2016humanoid},
+and continuous-time MDPs \cite{guo2009continuous}.
 
 % TODO xavier \cite{koenig1998xavier}
 \begin{definition}[Markov decision process] \label{mdp}
@@ -109,7 +115,63 @@ bidding \cite{867150}, and many others.
     reward function}.
 \end{definition}
 
-% TODO: minimal example with a diagram
+\begin{example}
+  Let $M = (S, \overline{s}, A, P, L)$ be an MDP, where $S = \{ s_0, s_1, s_2,
+  s_3 \}$, $\overline{s} = s_0$, $A = \{ \text{start}, \text{wait}, \text{send},
+  \text{restart}, \text{stop} \}$, and $P, L$ are defined as follows:
+  \begin{equation*}
+    \begin{split}
+      P(s_0, \text{start}) &= P(s_1, \text{wait}) = [s_1 \mapsto 1], \\
+      P(s_1, \text{send}) &= [s_2 \mapsto 0.01, s_3 \mapsto 0.99], \\
+      P(s_2, \text{restart}) &= [s_0 \mapsto 1], \\
+      P(s_3, \text{stop}) &= [s_3 \mapsto 1],
+    \end{split}
+    \qquad
+    \begin{split}
+      L(s_0) &= \emptyset, \\
+      L(s_1) &= \{ \text{try} \}, \\
+      L(s_2) &= \{ \text{failure} \}, \\
+      L(s_3) &= \{ \text{success} \}.
+    \end{split}
+  \end{equation*}
+  Then $M$ can represent a simple communication protocol. The process
+  initialises, and is faced with a nondeterministic choice between waiting and
+  sending a message. Most of the time the sent message is successfully
+  delivered, and the process stops. But sometimes a message fails to deliver, in
+  which case the process has to restart. See Fig. \ref{first_mdp} for a
+  visualisation of $M$.
+\end{example}
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[state/.style={rectangle, draw, scale=2},
+    action/.style={diamond, draw, fill=lightgray, minimum size=1.6cm}]
+    \node(origin) at (-1, 0){};
+    \node[state](s0) at (0, 0){$s_0$};
+    \node[action](start) at (2, 0){start};
+    \node[state,label=try](s1) at (4, 0){$s_1$};
+    \node[action](wait) at (4, -2){wait};
+    \node[action](send) at (6, 0){send};
+    \node[state,label={right:failure}](s2) at (8, 2){$s_2$};
+    \node[action](restart) at (8, 4){restart};
+    \node[state,label={below:success}](s3) at (8, -2){$s_3$};
+    \node[action](stop) at (10, -2){stop};
+    \draw[-{>[scale=2]}] (s0) edge (start);
+    \draw[-{>[scale=2]}] (start) edge node[above] {$1$} (s1);
+    \draw[-{>[scale=2]},bend left] (s1) edge (wait);
+    \draw[-{>[scale=2]},bend left] (wait) edge node[left] {$1$} (s1);
+    \draw[-{>[scale=2]}] (s1) edge (send);
+    \draw[-{>[scale=2]}] (send) edge node[left] {$0.01$} (s2);
+    \draw[-{>[scale=2]}] (send) edge node[left] {$0.99$} (s3);
+    \draw[-{>[scale=2]}] (s2) edge (restart);
+    \draw[-{>[scale=2]},bend right] (restart) edge node[above] {$1$} (s0);
+    \draw[-{>[scale=2]},bend left] (s3) edge (stop);
+    \draw[-{>[scale=2]},bend left] (stop) edge node[below] {$1$} (s3);
+    \draw[-{>[scale=2]}] (origin) edge (s0);
+  \end{tikzpicture}
+  \caption{A simple MDP for communication.}
+  \label{first_mdp}
+\end{figure}
 
 \subsection{Bigraphs}
 
@@ -411,10 +473,10 @@ an example.
     \end{split}
     \qquad
     \begin{split}
-      L(s_0) &= \{ initial \}, \\
+      L(s_0) &= \{ \text{initial} \}, \\
       L(s_1) &= \emptyset, \\
-      L(s_2) &= \{ heads \}, \\
-      L(s_3) &= \{ tails \}.
+      L(s_2) &= \{ \text{heads} \}, \\
+      L(s_3) &= \{ \text{tails} \}.
     \end{split}
   \end{equation*}
   Furthermore, equip it with a reward structure $(\rho, \iota)$, where
@@ -693,9 +755,9 @@ in Fig.~\ref{go_in_out}.
     \draw (1, 2) -- (1.25, 2);
     \draw (1.75, 2) -- (2, 2);
   \end{tikzpicture}
-  \caption{The full map. The agent is in the top left cell. There is a thick
-    brown door connecting the middle cell of the top row with a $2 \times 2$
-    room below. The red dashed wall exists with probability $1-p$.}
+  \caption{The full map. The agent is in the top left cell. There is a door
+    connecting the middle cell of the top row with a $2 \times 2$ room below.
+    The dashed wall exists with probability $1-p$.}
   \label{agent2_map}
 \end{figure}
 
