@@ -53,6 +53,7 @@
 \institute{University of Glasgow, Glasgow, UK}
 \maketitle
 
+% TODO: opening statement on why probabilities and non-determinism are important
 \begin{abstract}
   In this paper we introduce two extensions of bigraphical reactive systems
   (BRSs) to handle probabilistic and nondeterministic behaviour, allowing BRSs
@@ -81,6 +82,16 @@
 
 \subsection{Markov Decision Processes}
 
+% TODO: short intro on MDPs with references to the literature, why they are
+% important
+% TODO: turn the door into an actual door
+
+MDPs have been used to solve a wide range of problems: optimising airline yield
+management \cite{DBLP:journals/transci/LautenbacherS99}, constructing optimal
+dialogue strategies \cite{658989,DBLP:conf/icassp/LevinPE98}, electricity supply
+bidding \cite{867150}, and many others.
+
+% TODO xavier \cite{koenig1998xavier}
 \begin{definition}[Markov decision process] \label{mdp}
   For any finite set $X$, let $\Dist(X)$ denote the set of discrete probability
   distributions over $X$. A \emph{Markov Decision Process} is a tuple $ (S,
@@ -97,6 +108,8 @@
     function}, and $\iota : S \times A \to \mathbb{R}$ is the \emph{transition
     reward function}.
 \end{definition}
+
+% TODO: minimal example with a diagram
 
 \subsection{Bigraphs}
 
@@ -115,6 +128,7 @@ we assume that names, node identifiers, edge identifiers, and controls are drawn
 from four infinite pairwise disjoint sets, respectively $\mathcal{X},
 \mathcal{V}, \mathcal{E}$, and $\mathcal{K}$.
 
+% TODO: site should be at the bottom
 \begin{figure}
   \centering
   \includegraphics{models/example_bigraph/foo_lhs.pdf}
@@ -151,6 +165,8 @@ for describing the placement of nodes, and one for the links between them. This
 is the approach that will be featured in our formal definitions. We also focus
 on \emph{concrete} bigraphs, where nodes and links have distinct identifiers.
 
+% TODO: mention we will be using bigraphs with sharing and we recall some
+% definitions from TCS paper
 \begin{definition}[concrete place graph with sharing]
   A \emph{concrete place graph with sharing}
   \[ F = (V_F, \ctrl_F, \prnt_F) : m \to n \]
@@ -244,6 +260,7 @@ bigraph with inner face $\epsilon$ is called \emph{ground}.
   \end{enumerate}
 \end{definition}
 
+% TODO: why we limit reaction rules to solid (stochastic bigraphs paper)
 \begin{definition}[reaction rule] \label{reaction_rule}
   A \emph{reaction rule} is a pair
   \[ \mathsf{R} = (R : m \to J, R' : m \to J), \]
@@ -298,6 +315,8 @@ applied in multiple places, or some rules in an action may not be applicable.
 
 \subsection{Probabilistic BRS}
 
+% TODO: for the same D_i - not clear
+% TODO: minimal example showing normalisation
 \begin{definition}[probabilistic reaction rule]
   A \emph{probabilistic reaction rule} $\mathsf{R}$ is a triple $(R, R', p)$,
   sometimes written $R \xrightarrowRHD{p} R'$, where $(R, R')$ is a reaction
@@ -325,6 +344,9 @@ applied in multiple places, or some rules in an action may not be applicable.
 
 \subsection{Nondeterministic BRS}
 
+% TODO: intro explaining how we are further generalising the extensions defined
+% above
+
 \begin{definition}[nondeterministic reaction rule]
   Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
   $\mathsf{R}$ is a tuple $(R, R', a, p)$, where $(R, R', p)$ is a probabilistic
@@ -333,6 +355,8 @@ applied in multiple places, or some rules in an action may not be applicable.
   each action.
 \end{definition}
 
+% TODO: D_i not clear
+% TODO: different symbol for reward
 \begin{definition}[nondeterministic bigraphical reactive system (NBRS)]
   A \emph{nondeterministic bigraphical reactive system} consists of a pair
   $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of ground bigraphs
@@ -356,7 +380,13 @@ rewards to states in a flexible and semantically meaningful way: the reward of a
 state is simply the sum of the rewards of all matching predicates (and $0$ in
 case there are none).
 
+% TODO: minimal example, possible the same one as below
+
 \section{Implementation}
+
+% TODO: we extend BigraphER
+% TODO: describe the new syntactical constructs using the example
+% TODO: what's the reward of action b?
 
 The described extensions have been implemented in an open-source tool for BRSs
 BigraphER \cite{DBLP:conf/cav/SevegnaniC16}. We refer the interested reader to
@@ -483,7 +513,9 @@ planning in two dimensions. The examples have different sources of probabilistic
 behaviour and explore topics such as tracking visited locations and uncertainty
 about the topology.
 
-% TODO xavier \cite{koenig1998xavier}
+% TODO: the agent is simply modelled as an atomic node as the focus of this case
+% study is on its movements across a grid. More complex models are possible
+% by...
 
 \subsection{Collecting Objects in a Grid}
 
@@ -565,6 +597,8 @@ staying home are in a higher priority class.
 
 \subsection{Layers of Abstraction}
 
+% TODO: taking advantage of the hierarchical structure of bigraphs
+
 Our second model explores two important concepts in modelling the topology of
 space: nesting and uncertainty. Nesting is the idea that spaces can be inside
 other spaces: rooms inside floors, floors inside buildings, buildings inside
@@ -642,10 +676,9 @@ in Fig.~\ref{go_in_out}.
 \begin{figure}
   \centering
   \begin{tikzpicture}
-    % walls
+    % outside walls
     \draw (3, 2) -- (3, 0) -- (1, 0) -- (1, 2) -- (0, 2) -- (0, 3) -- (3, 3) -- (3, 2) -- (2, 2);
-    \draw[brown,ultra thick] (1, 2) -- (2, 2);
-    % the door
+    % the probabilistic wall
     \draw[red,ultra thick,dashed] (2, 2) -- (2, 1);
     % the background grid
     \draw[gray,very thin] (1, 3) -- (1, 2);
@@ -654,6 +687,11 @@ in Fig.~\ref{go_in_out}.
     \draw[gray,very thin] (2, 1) -- (2, 0);
     % the agent
     \node at (0.5, 2.3) {\PHchild};
+    % the door
+    \draw[dotted] (1.25,2) arc (180:270:0.5cm);
+    \draw[brown,ultra thick] (1.75,1.5) -- (1.75,2) node[right,  near start]{};
+    \draw (1, 2) -- (1.25, 2);
+    \draw (1.75, 2) -- (2, 2);
   \end{tikzpicture}
   \caption{The full map. The agent is in the top left cell. There is a thick
     brown door connecting the middle cell of the top row with a $2 \times 2$
@@ -685,12 +723,24 @@ possible directions of travel. The reaction rules are very similar to those of
 our previous example, an example of which can be found in
 Listing~\ref{agent2_north}.
 
+% TODO: limitation of a single entrance/exit per cell, can a room have multiple
+% doors (doesn't make sense for this conceptualisation of the problem)?
+
+% TODO: state diagrams (and statistics about them)
+% TODO: numerical analysis (or ideas)
+% TODO: discussion section
+% TODO: what are the adtantages of using NBRS?
+% TODO: limitations
+% TODO: difficulties
+
 \section{Conclusion}
 
 % TODO advantages: more visual/realistic than a vector of numbers, rewards and
 % transition rules can be generated with a higher degree of automation, less
 % code, more flexible (changing size of the grid); disadvantages: constant
 % probability (without hacking)
+% Extensions: multiple agents (nice), uncertainty in actions (easy), rotations
+% (pomdp paper, easy), not limited to four directions
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
