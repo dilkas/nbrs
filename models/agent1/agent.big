@@ -189,6 +189,8 @@ react stayHome =
   Cell{v}.(Directions.(North{v1} | East{v2}) | goal);
 end
 
+big agent = Agent;
+
 begin nbrs
   init initial;
   rules = [ {goHomeWestVisited, goHomeWestUnvisited, goHomeSouthVisited,
@@ -196,5 +198,5 @@ begin nbrs
     {goWestToUnvisited, goWestToVisited, goEastToUnvisited, goEastToVisited,
       goNorthToUnvisited, goNorthToVisited, goSouthToUnvisited, goSouthToVisited,
       westObject, eastObject, northObject, southObject} ];
-  preds = { goal, home };
+  preds = { goal, home, agent[1] };
 end

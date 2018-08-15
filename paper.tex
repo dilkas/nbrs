@@ -667,7 +667,7 @@ some transitions unavailable (i.e. add walls), as long as the agent can still
 return home.
 
 \lstinputlisting[caption=Controls., captionpos=b, language=Big,
-label=agent1_controls, firstline=3, lastline=14]{models/agent1.big}
+label=agent1_controls, firstline=3, lastline=14]{models/agent1/agent.big}
 
 We begin with a list of controls in Listing~\ref{agent1_controls}. On the right
 hand side of each equal sign is the number of ports that each node of that
@@ -686,7 +686,7 @@ corresponding to the four possible directions of travel: \texttt{North},
 
 \lstinputlisting[caption=Predicates and the initial state., captionpos=b,
 language=Big, label=agent1_code, firstline=16,
-lastline=30]{models/agent1.big}
+lastline=30]{models/agent1/agent.big}
 
 Next, we define two predicates: \texttt{home} and \texttt{goal} (see
 Listing~\ref{agent1_code}). The former states that the agent is home if it is in
@@ -698,7 +698,7 @@ as described previously.
 
 \lstinputlisting[caption=The action of going north., captionpos=b,
 language=Big, label=agent1_north, firstline=88,
-lastline=117]{models/agent1.big}
+lastline=117]{models/agent1/agent.big}
 
 Then, we have an action for each of the four directions, each with three
 reaction rules: one for going to an already visited cell, one for visiting a
@@ -715,7 +715,7 @@ Regardless, the \texttt{Cell} changes its link from \texttt{Unvisited} to
 
 \lstinputlisting[caption=Reaction rule to stay home if a required number of
 objects is acquired., captionpos=b, language=Big, label=agent1_home,
-firstline=186, lastline=189]{models/agent1.big}
+firstline=186, lastline=189]{models/agent1/agent.big}
 
 Lastly, we have three actions for when the agent acquires the specified number
 of objects: two for going home west or south (since these are the two directions
