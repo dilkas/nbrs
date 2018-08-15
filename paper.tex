@@ -27,11 +27,13 @@
 
 \providecommand\longrightarrowRHD{\relbar\joinrel\relbar\joinrel\mathrel\RHD}
 \providecommand\longrightarrowrhd{\relbar\joinrel\relbar\joinrel\mathrel\rhd}
-\providecommand\longrightdoublearrowRHD{\mathrel\LHD\joinrel\relbar\joinrel\relbar\joinrel\mathrel\RHD}
+\providecommand\longdoublearrowRHD{\mathrel\LHD\joinrel\relbar\joinrel\relbar\joinrel\mathrel\RHD}
 
 \makeatletter
 \providecommand*\xrightarrowRHD[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longrightarrowRHD}{#1}{#2}}
 \providecommand*\xrightarrowrhd[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longrightarrowrhd}{#1}{#2}}
+\providecommand*\xdoublearrowRHD[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longdoublearrowRHD}{#1}{#2}}
+
 \makeatother
 
 \lstdefinelanguage{Big}{
@@ -79,10 +81,21 @@
 
 \section{Introduction}
 
-TODO: introduction to bigraphs and everything else
-%Bigraphical reactive systems (BRS) \cite{DBLP:books/daglib/0022395} are a
-%universal formalism for modelling interacting systems that evolve in time and
-%space.
+Bigraphical reactive systems (BRS) \cite{DBLP:books/daglib/0022395} are a
+universal formalism for modelling interacting systems that evolve in time and
+space. They consist of bigraphs and reaction rules. Bigraphs are algebraic terms
+for modelling agents, connections, and their placement within each other, while
+reaction rules specify how one bigraph can evolve into another. BRSs have
+been used to represent a diverse range of phenomena: games
+\cite{DBLP:journals/tochi/BenfordCRS16}, network management
+\cite{DBLP:journals/scp/CalderKSS14}, protocols
+\cite{DBLP:journals/fac/CalderS14}, biological processes
+\cite{DBLP:journals/entcs/KrivineMT08}, real world environments
+\cite{DBLP:conf/giscience/WaltonW12}, etc. Extending BRSs with probabilities,
+uncertainty, and rewards allows us to model an even wider range of processes and
+systems, examples of which will be given in Section \ref{case_study}. In this
+section we introduce and define the main concepts built upon in the remainder of
+paper: Markov decision processes and BRSs.
 
 \subsection{Markov Decision Processes}
 
@@ -431,7 +444,7 @@ applied in multiple places, or some rules in an action may not be applicable.
     \centering
     \includegraphics[width=\textwidth]{models/pbrs_example/take_lhs.pdf}
   \end{minipage}
-  $\longrightdoublearrowRHD$
+  $\xrightarrowRHD{1}$
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{models/pbrs_example/take_rhs.pdf}
@@ -617,7 +630,7 @@ cell:
     the current cell.
 \end{description}
 
-\section{A Case Study in Autonomous Agents}
+\section{A Case Study in Autonomous Agents} \label{case_study}
 
 In order to demonstrate the use of bigraphs in modelling probabilistic
 processes with nondeterminism, we present two examples of agent movement
@@ -763,7 +776,7 @@ firstline=15, lastline=19]{models/agent2/agent.big}
     \centering
     \includegraphics[width=\textwidth]{models/agent2/goIn_lhs.pdf}
   \end{minipage}
-  $\longrightdoublearrowRHD$
+  $\xdoublearrowRHD{1}$
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{models/agent2/goIn_rhs.pdf}
