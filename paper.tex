@@ -323,7 +323,7 @@ Two places with the same parent, or two points with the same link are called
 We use $\epsilon$ as a shorthand for interface $\langle 0, \emptyset \rangle$. A
 bigraph with inner face $\epsilon$ is called \emph{ground}.
 
-\begin{definition}[solid bigraph]
+\begin{definition}[solid bigraph] \label{solid}
   A bigraph is \emph{solid} if these conditions hold:
   \begin{enumerate}
   \item no regions or outer names are idle (a region is called \emph{idle}
@@ -334,7 +334,6 @@ bigraph with inner face $\epsilon$ is called \emph{ground}.
   \end{enumerate}
 \end{definition}
 
-% TODO: why we limit reaction rules to solid (stochastic bigraphs paper)
 \begin{definition}[reaction rule] \label{reaction_rule}
   A \emph{reaction rule} is a pair
   \[ \mathsf{R} = (R : m \to J, R' : m \to J), \]
@@ -350,6 +349,9 @@ bigraph with inner face $\epsilon$ is called \emph{ground}.
   for some bigraph $D$ and some ground reaction rule $(r, r')$ generated from
   $\mathsf{R}$.
 \end{definition}
+
+The condition that $R$ must be solid ensures that the ground reaction rule is
+unique for a given pair of $g$ and $D$.
 
 \begin{definition}[bigraphical reactive system (BRS)]
   A \emph{bigraphical reactive system} consists of a pair $(\mathcal{B},
@@ -474,9 +476,12 @@ applied in multiple places, or some rules in an action may not be applicable.
 
 \subsection{Nondeterministic BRS}
 
-%The next step towards...
-% TODO: intro explaining how we are further generalising the extensions defined
-% above
+We extend PBRS even further by adding rewards to both reaction rules and
+predicates, and grouping reaction rules into actions. This allows us to
+represent any MDP as a nondeterministic BRS. This can be done either trivially
+(see Example \ref{example}) or in a more efficient manner, by treating each
+bigraph as a complex system, only parts of which are relevant to any given
+reaction rule or predicate.
 
 \begin{definition}[nondeterministic reaction rule]
   Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
@@ -894,6 +899,10 @@ TODO: quantitative analysis with PRISM (need good nontrivial examples)
 \end{itemize}
 
 \section{Conclusion}
+
+Food for thought: what models have efficient (i.e. polynomial in size)
+representation as BRSs? Can we define complexity classes (easy for everyone,
+easy for bigraphs but not for everyone, hard for everyone)?
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
