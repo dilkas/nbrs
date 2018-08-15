@@ -11,6 +11,7 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{phaistos}
+\usepackage{subcaption}
 
 \usetikzlibrary{shapes,arrows.meta}
 
@@ -391,7 +392,8 @@ applied in multiple places, or some rules in an action may not be applicable.
 
   Let $g, g'$ be ground bigraphs, and $\{ (r_i, r'_i, p_i) \}_{i=1}^n$ a set of
   ground probabilistic reaction rules, where for each $r_i$, there exists a
-  bigraph $D(r_i)$ such that $g = D(r_i) \circ r_i$. Let $S = \{ (r_i, r'_i, p_i) \mid g' = D(r_i) \circ r'_i \}$, and
+  bigraph $D(r_i)$ such that $g = D(r_i) \circ r_i$. Let $S = \{ (r_i, r'_i,
+  p_i) \mid g' = D(r_i) \circ r'_i \}$, and
   \[ s = \sum_{i=1}^n p_i. \]
   Then the reaction relation is defined as
   \[ g \xrightarrowrhd{p}_{\mathcal{R}} g' \text{ iff } S \ne \emptyset, \]
@@ -399,7 +401,63 @@ applied in multiple places, or some rules in an action may not be applicable.
   \[ p = \frac{1}{s}\sum_{(r, r', p') \in S} p'. \]
 \end{definition}
 
-TODO: minimal example showing normalisation
+\begin{example}
+  Consider a simple PBRS, where the initial state $g_0$ has an \texttt{Agent}
+  and two \texttt{Locations}, each of which is holding an \texttt{Object} (see
+  Fig. \ref{pbrs_initial}), and a single reaction rule with probability $1$ that
+  takes an \texttt{Object} from a \texttt{Location} and transfers it to the
+  \texttt{Agent} (see Fig. \ref{pbrs_rule}). Then, since regions $1$ and $2$ are
+  not treated as isomorphic, the reaction rule can be applied in two ways,
+  resulting in two different subsequent states in Fig. \ref{pbrs_next_states},
+  $g_1$ and $g_2$. Thus, we have two ground probabilistic reaction rules ($n =
+  2$) with $p_1 = p_2 = 1$ and $s = 2$. Let $g' = g_1$. Then $|S| = 1$, and
+  \[ g_0 \xrightarrowrhd{0.5}_{\mathcal{R}} g_1, \]
+  since
+  \[ 0.5 = \frac{1}{2} \sum_{(r, r', 1) \in S} 1. \]
+  Similarly,
+  \[ g_0 \xrightarrowrhd{0.5}_{\mathcal{R}} g_2. \]
+\end{example}
+
+\begin{figure}
+  \centering
+  \includegraphics{models/pbrs_example/initial.pdf}
+  \caption{The initial state.}
+  \label{pbrs_initial}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{models/pbrs_example/take_lhs.pdf}
+  \end{minipage}
+  $\longrightdoublearrowRHD$
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{models/pbrs_example/take_rhs.pdf}
+  \end{minipage}
+  \caption{The reaction rule to take an \texttt{Object} from a
+    \texttt{Location}.}
+  \label{pbrs_rule}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{models/pbrs_example/1.pdf}
+    \caption{$g_1$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{models/pbrs_example/2.pdf}
+    \caption{$g_2$}
+  \end{subfigure}
+  \caption{Two possible next states, depending on which \texttt{Object} is
+    taken.}
+  \label{pbrs_next_states}
+\end{figure}
 
 \subsection{Nondeterministic BRS}
 

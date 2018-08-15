@@ -1,0 +1,11 @@
+ctrl Agent = 0;
+ctrl Location = 0;
+atomic ctrl Object = 0;
+
+big initial = Agent.1 || Location.Object || Location.Object;
+react take = Agent.1 || Location.Object -[1.]-> Agent.Object || Location.1;
+
+begin pbrs
+    init initial;
+    rules = [ {take} ];
+end
