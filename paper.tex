@@ -55,21 +55,22 @@
 \institute{University of Glasgow, Glasgow, UK}
 \maketitle
 
-% TODO: opening statement on why probabilities and non-determinism are important
 \begin{abstract}
-  In this paper we introduce two extensions of bigraphical reactive systems
-  (BRSs) to handle probabilistic and nondeterministic behaviour, allowing BRSs
-  to be used in discrete-time Markov chain and Markov decision process (MDP)
-  generation. We extend the implementation of an open-source tool for BRSs
-  BigraphER with new syntax for MDP actions and rewards, better visualisation
-  capabilities, and data export options. Furthermore, we introduce a new
-  front-end for working with BRSs based on Jupyter notebooks, allowing the user
-  to quickly visualise bigraphs and reaction rules, simulate execution, or
-  produce a complete transition system, all within the notebook interface.
-  Finally, we demonstrate the modelling capabilities of the new system with a
-  case study on the movement and behaviour of autonomous agents, exploring ideas
-  such as collecting objects, tracking visited locations, hierarchies of spaces,
-  and uncertainty in the topology of space.
+  Probabilities and nondeterminism allow us to represent uncertainty and
+  decision making. In this paper we introduce two extensions of bigraphical
+  reactive systems (BRSs) to handle probabilistic and nondeterministic
+  behaviour, allowing BRSs to be used in discrete-time Markov chain and Markov
+  decision process (MDP) generation. We extend the implementation of an
+  open-source tool for BRSs BigraphER with new syntax for MDP actions and
+  rewards, better visualisation capabilities, and data exporting options.
+  Furthermore, we introduce a new front end for working with BRSs based on
+  Jupyter notebooks, allowing the user to quickly visualise bigraphs and
+  reaction rules, simulate execution, or produce a complete transition
+  system---all within the notebook interface. Finally, we demonstrate the
+  modelling capabilities of the new system with a case study on the movement and
+  behaviour of autonomous agents, exploring ideas such as collecting objects,
+  tracking visited locations, hierarchies of spaces, and uncertainty in the
+  topology of space.
 
 \keywords{Bigraphs \and Bigraphical reactive systems \and Probabilistic
   semantics \and Markov decision process \and Spatial models.}
@@ -77,7 +78,7 @@
 
 \section{Introduction}
 
-% TODO: introduction
+TODO: introduction to bigraphs and everything else
 %Bigraphical reactive systems (BRS) \cite{DBLP:books/daglib/0022395} are a
 %universal formalism for modelling interacting systems that evolve in time and
 %space.
@@ -97,10 +98,9 @@ its own applications: constrained MDPs \cite{altman1999constrained}, partially
 observable MDPs \cite{astrom1965optimal}, fuzzy MDPs \cite{fakoor2016humanoid},
 and continuous-time MDPs \cite{guo2009continuous}.
 
-% TODO xavier \cite{koenig1998xavier}
 \begin{definition}[Markov decision process] \label{mdp}
   For any finite set $X$, let $\Dist(X)$ denote the set of discrete probability
-  distributions over $X$. A \emph{Markov Decision Process} is a tuple $ (S,
+  distributions over $X$. A \emph{Markov Decision Process} is a tuple $(S,
   \overline{s}, A, P, L)$, where: $S$ is a finite set of states and
   $\overline{s} \in S$ is the initial state; $A$ is a finite set of
   \emph{actions}; $P : S \times A \to \Dist(S)$ is a (partial) probabilistic
@@ -175,16 +175,19 @@ and continuous-time MDPs \cite{guo2009continuous}.
 
 \subsection{Bigraphs}
 
-We begin by introducing some notation used in the definitions. Natural numbers
-are sometimes interpreted as finite ordinals, i.e., $m = \{ 0, \dots, m - 1 \}$.
-We write $S \uplus T$ to indicate the union of sets known or assumed to be
-disjoint. For two functions $f$ and $g$ with disjoint domains $S$ and $T$ we
-write $f \uplus g$ for the function with domain $S \uplus T$ such that $(f
-\uplus g)|_S = f$ and $(f \uplus g)|_T = g$. The identity function on the set
-$S$ is written as $\Id_S$. Given a binary relation $\mathit{rel} \subseteq A
-\times B$, we denote the domain restriction of $\mathit{rel}$ over $S \subseteq
-A$ by $S \lhd \mathit{rel}$. Similarly, we write $\mathit{rel} \rhd S$ for the
-range restriction of $\mathit{rel}$ over $S \subseteq B$. We also denote the
+In this paper we use \emph{bigraphs with sharing} and recall some of the
+definitions from the literature
+\cite{DBLP:phd/ethos/Sevegnani12,dblp:journals/tcs/sevegnanic15}. We begin by
+introducing the notation used in the definitions. Natural numbers are sometimes
+interpreted as finite ordinals, i.e., $m = \{ 0, \dots, m - 1 \}$. We write $S
+\uplus T$ to indicate the union of sets known or assumed to be disjoint. For two
+functions $f$ and $g$ with disjoint domains $S$ and $T$ we write $f \uplus g$
+for the function with domain $S \uplus T$ such that $(f \uplus g)|_S = f$ and
+$(f \uplus g)|_T = g$. The identity function on the set $S$ is written as
+$\Id_S$. Given a binary relation $\mathit{rel} \subseteq A \times B$, we denote
+the domain restriction of $\mathit{rel}$ over $S \subseteq A$ by $S \lhd
+\mathit{rel}$. Similarly, we write $\mathit{rel} \rhd S$ for the range
+restriction of $\mathit{rel}$ over $S \subseteq B$. We also denote the
 transitive closure of $\mathit{rel}$ by $\mathit{rel}^+$. In defining bigraphs
 we assume that names, node identifiers, edge identifiers, and controls are drawn
 from four infinite pairwise disjoint sets, respectively $\mathcal{X},
@@ -199,36 +202,31 @@ from four infinite pairwise disjoint sets, respectively $\mathcal{X},
 \end{figure}
 
 Informally, a bigraph can be thought of as a graph, where a node can be inside
-another node\footnote{To be specific, in this paper we extend the ideas behind
-  \emph{bigraphs with sharing}
-  \cite{DBLP:phd/ethos/Sevegnani12,dblp:journals/tcs/sevegnanic15}, where a node
-  can be contained in the intersection of several other nodes.}. However, the
-pictures tend to become much clearer if we instead visualise the nesting
-relations between nodes as just a different type of edges. Consider the bigraph
-in Fig.~\ref{example_bigraph}. The white ellipses are the \emph{nodes}. Each
-node has a type, called \emph{control}, and denoted here by the labels
-$\mathsf{A}, \mathsf{B}$, and $\mathsf{C}$. The green edges are actually
-hyperedges (can connect any positive number of nodes), and are called
-\emph{links}. In this example they are given names $\mathsf{x}, \mathsf{y}$, and
-$\mathsf{e}$. Each node has an ordered list of \emph{ports} (not pictured in the
-diagram) that can be thought of as sockets for links. Nodes of the same control
-have the same number of ports. The number of ports a node of control
-$\mathsf{K}$ can have is called the \emph{arity} of $\mathsf{K}$ and is denoted
-by $\ar(\mathsf{K})$. The two white dashed rectangles represent \emph{regions},
-and in this representation are the parents to any otherwise parentless nodes.
-Grey dashed rectangles are called \emph{sites}, and encode parts of the model
-that have been abstracted away. Nodes, sites, and regions are also known as
-\emph{places}. The directed black arrows between places show the containment
-relations, e.g., the $\mathsf{A}$ node has two children (inner nodes):
-$\mathsf{B}$ and the only site in this bigraph, labelled by the number $0$.
+another node (or in the intersection of several nodes). However, the diagrams
+tend to become much clearer if we instead visualise the nesting relations
+between nodes as just a different type of edges. Consider the bigraph in
+Fig.~\ref{example_bigraph}. The white ellipses are the \emph{nodes}. Each node
+has a type, called \emph{control} and denoted here by the labels $\mathsf{A},
+\mathsf{B}$, and $\mathsf{C}$. The green edges are actually hyperedges (can
+connect any positive number of nodes) and are called \emph{links}. In this
+example they are given names $\mathsf{x}, \mathsf{y}$, and $\mathsf{e}$. Each
+node has an ordered list of \emph{ports} (not pictured in the diagram) that can
+be thought of as sockets for links. Nodes of the same control have the same
+number of ports. The number of ports a node of control $\mathsf{K}$ can have is
+called the \emph{arity} of $\mathsf{K}$ and is denoted by $\ar(\mathsf{K})$. The
+two white dashed rectangles represent \emph{regions} and in this representation
+are the parents to any otherwise parentless nodes. Grey dashed rectangles are
+called \emph{sites} and encode parts of the model that have been abstracted
+away. Nodes, sites, and regions are also known as \emph{places}. The directed
+black arrows between places show the containment relations, e.g., the
+$\mathsf{A}$ node has two children (inner nodes): $\mathsf{B}$ and the only site
+in this bigraph, labelled by the number $0$.
 
 Another, more formal way to think about a bigraph is as a pair of graphs: one
 for describing the placement of nodes, and one for the links between them. This
 is the approach that will be featured in our formal definitions. We also focus
 on \emph{concrete} bigraphs, where nodes and links have distinct identifiers.
 
-% TODO: mention we will be using bigraphs with sharing and we recall some
-% definitions from TCS paper
 \begin{definition}[concrete place graph with sharing]
   A \emph{concrete place graph with sharing}
   \[ F = (V_F, \ctrl_F, \prnt_F) : m \to n \]
@@ -377,8 +375,6 @@ applied in multiple places, or some rules in an action may not be applicable.
 
 \subsection{Probabilistic BRS}
 
-% TODO: for the same D_i - not clear
-% TODO: minimal example showing normalisation
 \begin{definition}[probabilistic reaction rule]
   A \emph{probabilistic reaction rule} $\mathsf{R}$ is a triple $(R, R', p)$,
   sometimes written $R \xrightarrowRHD{p} R'$, where $(R, R')$ is a reaction
@@ -395,8 +391,7 @@ applied in multiple places, or some rules in an action may not be applicable.
 
   Let $g, g'$ be ground bigraphs, and $\{ (r_i, r'_i, p_i) \}_{i=1}^n$ a set of
   ground probabilistic reaction rules, where for each $r_i$, there exists a
-  bigraph $D_i$ such that $g = D_i \circ r_i$. Let $S = \{ (r_i, r'_i, p_i) \mid
-  g' = D_i \circ r'_i \}$ (for the same $D_i$), and
+  bigraph $D(r_i)$ such that $g = D(r_i) \circ r_i$. Let $S = \{ (r_i, r'_i, p_i) \mid g' = D(r_i) \circ r'_i \}$, and
   \[ s = \sum_{i=1}^n p_i. \]
   Then the reaction relation is defined as
   \[ g \xrightarrowrhd{p}_{\mathcal{R}} g' \text{ iff } S \ne \emptyset, \]
@@ -404,8 +399,11 @@ applied in multiple places, or some rules in an action may not be applicable.
   \[ p = \frac{1}{s}\sum_{(r, r', p') \in S} p'. \]
 \end{definition}
 
+TODO: minimal example showing normalisation
+
 \subsection{Nondeterministic BRS}
 
+%The next step towards...
 % TODO: intro explaining how we are further generalising the extensions defined
 % above
 
@@ -413,12 +411,10 @@ applied in multiple places, or some rules in an action may not be applicable.
   Let $A$ be a set of actions. A \emph{nondeterministic reaction rule}
   $\mathsf{R}$ is a tuple $(R, R', a, p)$, where $(R, R', p)$ is a probabilistic
   reaction rule, and $a \in A$ is an action. We also define a \emph{reaction
-    reward function} $r : A \to \mathbb{R}$ that assigns a reward or cost to
+    reward function} $\rho : A \to \mathbb{R}$ that assigns a reward or cost to
   each action.
 \end{definition}
 
-% TODO: D_i not clear
-% TODO: different symbol for reward
 \begin{definition}[nondeterministic bigraphical reactive system (NBRS)]
   A \emph{nondeterministic bigraphical reactive system} consists of a pair
   $(\mathcal{B}, \mathcal{R})$, where $\mathcal{B}$ is a set of ground bigraphs
@@ -427,12 +423,12 @@ applied in multiple places, or some rules in an action may not be applicable.
 
   Let $g, g'$ be ground bigraphs, $a \in A$ an action, and $\{ (r_i, r'_i, a,
   p_i) \}_{i=1}^n$ a set of ground nondeterministic reaction rules with action
-  $a$, where for each $r_i$, there exists a bigraph $D_i$ such that $g =
-  D_i \circ r_i$. Let $S = \{ (r_i, r'_i, a, p_i) \mid g' = D_i \circ r'_i \}$
-  (for the same $D_i$), and
+  $a$, where for each $r_i$, there exists a bigraph $D(r_i)$ such that $g =
+  D(r_i) \circ r_i$. Let $S = \{ (r_i, r'_i, a, p_i) \mid g' = D(r_i) \circ r'_i
+  \}$, and
   \[ s = \sum_{i=1}^n p_i. \]
   Then the reaction relation for action $a$ is defined as
-  \[ g \xrightarrowrhd[r(a)]{p}_{a} g' \text{ iff } S \ne \emptyset, \]
+  \[ g \xrightarrowrhd[\rho(a)]{p}_{a} g' \text{ iff } S \ne \emptyset, \]
   where
   \[ p = \frac{1}{s}\sum_{(r, r', a, p') \in S} p'. \]
 \end{definition}
@@ -442,13 +438,9 @@ rewards to states in a flexible and semantically meaningful way: the reward of a
 state is simply the sum of the rewards of all matching predicates (and $0$ in
 case there are none).
 
-% TODO: minimal example, possible the same one as below
+TODO: minimal example, possibly the same one as below.
 
 \section{Implementation}
-
-% TODO: we extend BigraphER
-% TODO: describe the new syntactical constructs using the example
-% TODO: what's the reward of action b?
 
 The described extensions have been implemented in an open-source tool for BRSs
 BigraphER \cite{DBLP:conf/cav/SevegnaniC16}. We refer the interested reader to
@@ -507,7 +499,7 @@ Listing~\ref{example_listing}. More specifically, reaction rule probabilities
 are represented as floating-point numbers inside the arrows (e.g.
 \texttt{-[0.7]->}), each action encompasses its reaction rules with
 \texttt{\textbf{action} actionName} and \texttt{\textbf{end}}. Rewards can be
-added to actions simply by inserting an integer enclosed in squared brackets
+added to actions simply by inserting an integer enclosed in square brackets
 after the action name (e.g. \texttt{\textbf{action} b[1]}). Lastly, predicate
 rewards have the same format, but are listed on the \texttt{\textbf{preds}} line
 of the \texttt{\textbf{begin nbrs}}---\texttt{\textbf{end}} block (e.g.
@@ -524,7 +516,7 @@ state/transition rewards can be exported to the various plain text formats of a
 probabilistic model checker PRISM \cite{DBLP:conf/cav/KwiatkowskaNP11} for
 further quantitative analysis.
 
-\subsection{Front end}
+\subsection{Front End}
 
 \begin{figure}
   \centering
@@ -573,11 +565,11 @@ In order to demonstrate the use of bigraphs in modelling probabilistic
 processes with nondeterminism, we present two examples of agent movement
 planning in two dimensions. The examples have different sources of probabilistic
 behaviour and explore topics such as tracking visited locations and uncertainty
-about the topology.
-
-% TODO: the agent is simply modelled as an atomic node as the focus of this case
-% study is on its movements across a grid. More complex models are possible
-% by...
+about the topology. In both cases the agent is simply modelled as an single
+node, as the focus of this case study is on its movement. More complex models
+are possible by considering which direction the agent is facing
+\cite{koenig1998xavier} or adding extra state to the agent such as limited
+battery life or high/lower power sensors \cite{dblp:conf/nfm/giaquintahimn18}.
 
 \subsection{Collecting Objects in a Grid}
 
@@ -659,8 +651,6 @@ staying home are in a higher priority class.
 
 \subsection{Layers of Abstraction}
 
-% TODO: taking advantage of the hierarchical structure of bigraphs
-
 Our second model explores two important concepts in modelling the topology of
 space: nesting and uncertainty. Nesting is the idea that spaces can be inside
 other spaces: rooms inside floors, floors inside buildings, buildings inside
@@ -668,7 +658,10 @@ streets, etc. A key characteristic of nested spaces is that there is a separate
 action (or several) taking you from the outer space to the inner space or vice
 versa (e.g., using a door to enter or leave a room). In the rest of the paper,
 whenever we discuss one space nested inside another, we will refer to the inner
-space as the \emph{room}. While nesting has been modelled using bigraphs before
+space as the \emph{room}. As bigraphs possess their own node nesting, this makes
+bigraphical representations of these spaces more intuitive and easier to manage
+than, say, a vector of numbers, each of which is assigned a particular meaning.
+While nesting has been modelled using bigraphs before
 \cite{DBLP:conf/giscience/WaltonW12}, our approach models each room not as a
 single entity, but rather as an interconnected collection of smaller spaces,
 which we continue to call \emph{cells}. Thus, it is not enough to be in the
@@ -785,24 +778,46 @@ possible directions of travel. The reaction rules are very similar to those of
 our previous example, an example of which can be found in
 Listing~\ref{agent2_north}.
 
-% TODO: limitation of a single entrance/exit per cell, can a room have multiple
-% doors (doesn't make sense for this conceptualisation of the problem)?
+\section{Discussion}
 
-% TODO: state diagrams (and statistics about them)
-% TODO: numerical analysis (or ideas)
-% TODO: discussion section
-% TODO: what are the adtantages of using NBRS?
-% TODO: limitations
-% TODO: difficulties
+TODO (possibly): state transition diagrams and statistics about the number of
+states, etc.
+TODO: quantitative analysis with PRISM (need good nontrivial examples)
+
+\begin{itemize}
+\item LIMITATIONS
+  \begin{itemize}
+  \item no easy way to change probabilities depending on the state
+  \item each room only has a single entrance/exit (could be fixed via
+    bigraphs with sharing)
+  \item can't implement everything you can think of: no way to check for set
+    membership, limited support for representing numbers (adding/subtracting $n$
+    has to be a separate reaction rule for each $n$)
+  \end{itemize}
+\item EXTENSIONS
+  \begin{itemize}
+  \item discovery of spaces independent of room structure (no specific ideas
+    yet, but could be very nice)
+  \item there's no good reason why rewards are assigned to actions rather than
+    reaction rules
+  \item multiple agents
+  \item uncertainty in actions (like in Artificial Intelligence: A Modern
+    Approach)
+  \end{itemize}
+\item ADVANTAGES
+  \begin{itemize}
+  \item less code than with PRISM
+  \item more visual and intuitive, represents the modelled situation in a more
+    straightforward way
+  \item rewards and transition rules can be generated with a higher degree of
+    automation (considering a specific property of a state, rather than listing
+    all states that satisfy that property)
+  \item more flexible in changing the size of the grid
+  \item can be easily extended to more than four directions
+  \end{itemize}
+\end{itemize}
 
 \section{Conclusion}
-
-% TODO advantages: more visual/realistic than a vector of numbers, rewards and
-% transition rules can be generated with a higher degree of automation, less
-% code, more flexible (changing size of the grid); disadvantages: constant
-% probability (without hacking)
-% Extensions: multiple agents (nice), uncertainty in actions (easy), rotations
-% (pomdp paper, easy), not limited to four directions
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
