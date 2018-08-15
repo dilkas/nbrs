@@ -152,7 +152,7 @@ and continuous-time MDPs \cite{guo2009continuous}.
   initialises, and is faced with a nondeterministic choice between waiting and
   sending a message. Most of the time the sent message is successfully
   delivered, and the process stops. But sometimes a message fails to deliver, in
-  which case the process has to restart. See Fig. \ref{first_mdp} for a
+  which case the process has to restart. See Fig.~\ref{first_mdp} for a
   visualisation of $M$.
 \end{example}
 
@@ -417,11 +417,11 @@ applied in multiple places, or some rules in an action may not be applicable.
 \begin{example}
   Consider a simple PBRS, where the initial state $g_0$ has an \texttt{Agent}
   and two \texttt{Locations}, each of which is holding an \texttt{Object} (see
-  Fig. \ref{pbrs_initial}), and a single reaction rule with probability $1$ that
+  Fig.~\ref{pbrs_initial}), and a single reaction rule with probability $1$ that
   takes an \texttt{Object} from a \texttt{Location} and transfers it to the
-  \texttt{Agent} (see Fig. \ref{pbrs_rule}). Then, since regions $1$ and $2$ are
+  \texttt{Agent} (see Fig.~\ref{pbrs_rule}). Then, since regions $1$ and $2$ are
   not treated as isomorphic, the reaction rule can be applied in two ways,
-  resulting in two different subsequent states in Fig. \ref{pbrs_next_states},
+  resulting in two different subsequent states in Fig.~\ref{pbrs_next_states},
   $g_1$ and $g_2$. Thus, we have two ground probabilistic reaction rules ($n =
   2$) with $p_1 = p_2 = 1$ and $s = 2$. Let $g' = g_1$. Then $|S| = 1$, and
   \[ g_0 \xrightarrowrhd{0.5}_{\mathcal{R}} g_1, \]
@@ -499,7 +499,7 @@ applied in multiple places, or some rules in an action may not be applicable.
   \}$, and
   \[ s = \sum_{i=1}^n p_i. \]
   Then the reaction relation for action $a$ is defined as
-  \[ g \xrightarrowrhd[\rho(a)]{p}_{a} g' \text{ iff } S \ne \emptyset, \]
+  \[ g \xrightarrowrhd[\rho(a)]{p}_a g' \text{ iff } S \ne \emptyset, \]
   where
   \[ p = \frac{1}{s}\sum_{(r, r', a, p') \in S} p'. \]
 \end{definition}
@@ -509,22 +509,9 @@ rewards to states in a flexible and semantically meaningful way: the reward of a
 state is simply the sum of the rewards of all matching predicates (and $0$ in
 case there are none).
 
-TODO: minimal example, possibly the same one as below.
-
-\section{Implementation}
-
-The described extensions have been implemented in an open-source tool for BRSs
-BigraphER \cite{DBLP:conf/cav/SevegnaniC16}. We refer the interested reader to
-the paper on BigraphER \cite{DBLP:conf/cav/SevegnaniC16}, the related PhD thesis
-\cite{DBLP:phd/ethos/Sevegnani12}, and online
-resources\footnote{\url{http://www.dcs.gla.ac.uk/~michele/bigrapher.html}} for
-further information on the syntax and capabilities of the software. In this
-section we will introduce the new features of BigraphER by using a simple MDP as
-an example.
-
 \begin{example} \label{example}
-  Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2, s_3
-  \}$, $\overline{s} = s_0$, $A = \{ a, b, c \}$, and $P, L$ are defined as
+  Consider an MDP $(S, \overline{s}, A, P, L)$, where $S = \{ s_0, s_1, s_2,
+  s_3 \}$, $\overline{s} = s_0$, $A = \{ a, b, c \}$, and $P, L$ are defined as
   follows:
   \begin{equation*}
     \begin{split}
@@ -545,7 +532,26 @@ an example.
   Furthermore, equip it with a reward structure $(\rho, \iota)$, where
   $\rho(s_2) = 3$, $\iota(s_1, b) = 1$, and both functions are zero everywhere
   else.
+
+  Let $s_0, s_1, s_2, s_3$ also denote the bigraphs representing these states.
+  Then we have the following reaction relations:
+  \begin{align*}
+    s_0 &\xrightarrowrhd{1}_a s_1, & s_1 &\xrightarrowrhd[1]{0.7}_b s_0, & s_1 &\xrightarrowrhd[1]{0.3}_b s_1, & s_1 &\xrightarrowrhd{0.5}_c s_2, & \\
+    s_1 &\xrightarrowrhd{0.5}_c s_3, & s_2 &\xrightarrowrhd{1}_a s_2, & s_3 &\xrightarrowrhd{1}_a s_3,
+  \end{align*}
+  where zero rewards have been omitted for clarity.
 \end{example}
+
+\section{Implementation}
+
+The described extensions have been implemented in an open-source tool for BRSs
+BigraphER \cite{DBLP:conf/cav/SevegnaniC16}. We refer the interested reader to
+the paper on BigraphER \cite{DBLP:conf/cav/SevegnaniC16}, the related PhD thesis
+\cite{DBLP:phd/ethos/Sevegnani12}, and online
+resources\footnote{\url{http://www.dcs.gla.ac.uk/~michele/bigrapher.html}} for
+further information on the syntax and capabilities of the software. In this
+section we will introduce the new features of BigraphER by turning Example
+\ref{example} into an NBRS.
 
 \begin{figure}
   \centering
@@ -565,10 +571,9 @@ an example.
   \end{tabular}
 \end{figure}
 
-The MDP can be represented as an NBRS with BigraphER code in
-Listing~\ref{example_listing}. More specifically, reaction rule probabilities
-are represented as floating-point numbers inside the arrows (e.g.
-\texttt{-[0.7]->}), each action encompasses its reaction rules with
+The full BigraphER code for this example is in Listing~\ref{example_listing}.
+Reaction rule probabilities are represented as floating-point numbers inside the
+arrows (e.g. \texttt{-[0.7]->}), each action encompasses its reaction rules with
 \texttt{\textbf{action} actionName} and \texttt{\textbf{end}}. Rewards can be
 added to actions simply by inserting an integer enclosed in square brackets
 after the action name (e.g. \texttt{\textbf{action} b[1]}). Lastly, predicate
@@ -605,14 +610,14 @@ a similar workflow to that of Jupyter notebooks for other languages, allowing
 the user to divide the code into multiple \emph{cells} and have the definitions
 persist in a \emph{buffer} to be used later. By default, the output of each cell
 displays the graphical representation of all bigraphs and reaction rules defined
-in that cell (see Fig. \ref{interface} for an example). The generated images are
+in that cell (see Fig.~\ref{interface} for an example). The generated images are
 stored in a local directory \texttt{jupyter-images/}. The kernel also supports a
 number of \emph{magics}, i.e., custom commands that can be used at the top of a
 cell:
 
 \begin{description}
   \item[\texttt{\%states}] produces a state transition diagram (similar to the
-    one in Fig. \ref{example_ts}). Mousing over a state shows what that
+    one in Fig.~\ref{example_ts}). Mousing over a state shows what that
     state looks like as a bigraph.
   \item[\texttt{\%simulate n}] runs a simulation for \texttt{n} steps, when used
     on non-stochastic models. For stochastic BRSs
@@ -787,8 +792,8 @@ firstline=15, lastline=19]{models/agent2/agent.big}
 \end{figure}
 
 In order to implement nesting, we put a \texttt{Node} (representing a room)
-inside a \texttt{Cell}, which has the ``door'' to that room (see Fig.
-\ref{agent2_nesting}). The \texttt{Node} can have its own collection of
+inside a \texttt{Cell}, which has the ``door'' to that room (see
+Fig.~\ref{agent2_nesting}). The \texttt{Node} can have its own collection of
 \texttt{Cell}s, describing the topology of the room. One of these \texttt{Cell}s
 is linked to the \texttt{Node}, representing the \texttt{Cell} closest to the
 door from the inside of the room. Thus, both \texttt{Node}s and \texttt{Cell}s
@@ -843,7 +848,7 @@ other action can take place, the two reaction rules in Listing~\ref{agent2_room}
 are put on a higher priority class. With probability $p$, the generated room has
 each \texttt{Cell} linked to its two neighbours; and with probability $1-p$, the
 top two \texttt{Cell}s are not linked, possibly forcing the agent to choose a
-different path (see Fig. \ref{agent2_map}). Finally, we have four actions, each
+different path (see Fig.~\ref{agent2_map}). Finally, we have four actions, each
 with a single reaction rule with probability $1$, corresponding to the four
 possible directions of travel. The reaction rules are very similar to those of
 our previous example, an example of which can be found in
