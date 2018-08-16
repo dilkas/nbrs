@@ -6,3 +6,9 @@ all: goIn_lhs.pdf_tex goIn_rhs.pdf_tex
 
 compile:
 	bigrapher validate -f svg -d ./ agent.big
+
+prism-files:
+	bigrapher full -l agent.csl -p agent.tra -r agent.rews agent.big
+
+prism:
+	prism -importtrans agent.tra -importstaterewards agent.rews agent.csl

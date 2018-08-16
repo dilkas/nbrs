@@ -1,6 +1,6 @@
 # Layers of abstraction
 
-float p = 0.5; # probability of an open door
+float p = 0.1; # probability of an open door
 
 ctrl Cell = 1;
 ctrl Node = 1;
@@ -11,6 +11,7 @@ atomic ctrl North = 1;
 atomic ctrl East = 1;
 atomic ctrl West = 1;
 atomic ctrl South = 1;
+atomic ctrl Goal = 0;
 
 big initial = /x /y /z (
               Cell{x}.(Directions.East{a} | Agent)
@@ -26,7 +27,7 @@ action room
       # top left
         Cell{n}.Directions.(East{a} | South{b})
       # top right
-      | Cell{x}.Directions.(West{a} | South{c})
+      | Cell{x}.(Directions.(West{a} | South{c}) | Goal)
       # bottom left
       | Cell{y}.Directions.(North{b} | East{d})
       # bottom right
@@ -39,7 +40,7 @@ action room
       # top left
         Cell{n}.Directions.(South{b})
       # top right
-      | Cell{x}.Directions.(South{c})
+      | Cell{x}.(Directions.(South{c}) | Goal)
       # bottom left
       | Cell{y}.Directions.(North{b} | East{d})
       # bottom right
@@ -94,7 +95,11 @@ action goOut
               Cell{x}.(Agent | Node{n}.(Cell{n} | id) | id);
 end
 
+big agent = Agent;
+big goal = Cell{x}.(Agent | Goal | id);
+
 begin nbrs
   init initial;
   rules = [ {openDoor, closedDoor}, {goNorth, goEast, goWest, goSouth, goIn, goOut} ];
+  preds = { agent[1], goal };
 end

@@ -1,4 +1,4 @@
-agent.csl: agent.big
+prism-files: agent.big
 	bigrapher full -l agent.csl -p agent.tra -r agent.rews agent.big
 
 prism:

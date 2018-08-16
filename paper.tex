@@ -12,6 +12,7 @@
 \usepackage{tikz}
 \usepackage{phaistos}
 \usepackage{subcaption}
+\usepackage{booktabs}
 
 \usetikzlibrary{shapes,arrows.meta}
 
@@ -51,7 +52,7 @@
 \begin{document}
 
 \title{Nondeterministic Bigraphical Reactive Systems for Markov Decision
-  Processes\thanks{Supported by organization x.}}
+  Processes\thanks{Supported by an EPSRC Vacation Scholarship.}}
 \titlerunning{Nondeterministic BRSs for MDPs}
 \author{Paulius Dilkas}
 \authorrunning{P. Dilkas}
@@ -859,11 +860,40 @@ possible directions of travel. The reaction rules are very similar to those of
 our previous example, an example of which can be found in
 Listing~\ref{agent2_north}.
 
+\subsection{Exporting to PRISM}
+
+% TODO: need to cite something about the syntax, logic, etc.
+Now that we have two models defined in BigraphER, we will briefly show how they
+can be exported and used for quantitative analysis with PRISM.
+
+For our first model, we set the probability of finding an object to $p = 0.5$
+and keep the same $2 \times 2$ grid. We ask PRISM to compute \texttt{Pmax=? [ F
+  "goal" ]}, i.e., the maximum probability of reaching the goal. Recall that the
+goal is to collect $n$ objects. We vary $n$ from $1$ to $3$ (as collecting $0$
+objects is trivial, and collecting more than $3$ is impossible given the size of
+the grid) and show the resulting probabilities in Table \ref{agent1_prism}. The
+reader is welcome to check that the numbers are as expected.
+
+\begin{table}
+  \centering
+  \begin{tabular}{l r r r}
+    \toprule
+    $n$ & \tablenum{1} & \tablenum{2} & \tablenum{3} \\
+    \texttt{Pmax} & \tablenum{0.875} & \tablenum{0.5} & \tablenum{0.125} \\
+    \bottomrule
+  \end{tabular}
+  \caption{The maximum probability of collecting $n$ objects in a $2 \times 2$
+    grid, where the probability of finding an object is \num{0.5} when visiting
+    a cell for the first time.}
+  \label{agent1_prism}
+\end{table}
+
+For the second model..
+
 \section{Discussion}
 
 TODO (possibly): state transition diagrams and statistics about the number of
 states, etc.
-TODO: quantitative analysis with PRISM (need good nontrivial examples)
 
 \begin{itemize}
 \item LIMITATIONS
