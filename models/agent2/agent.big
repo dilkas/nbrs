@@ -1,6 +1,6 @@
 # Layers of abstraction
 
-float p = 0.1; # probability of an open door
+float p = 0.9; # probability of a closed door
 
 ctrl Cell = 1;
 ctrl Node = 1;
@@ -22,7 +22,7 @@ big initial = /x /y /z (
 action room
   react openDoor =
     Cell{w}.(Agent | Node{n}.1 | id)
-    -[p]-> /x /y /z /a /b /c /d
+    -[1.0-p]-> /x /y /z /a /b /c /d
     Cell{w}.(Agent | Node{n}.(
       # top left
         Cell{n}.Directions.(East{a} | South{b})
@@ -35,7 +35,7 @@ action room
       | id);
   react closedDoor =
     Cell{w}.(Agent | Node{n}.1 | id)
-    -[1.0-p]-> /x /y /z /b /c /d
+    -[p]-> /x /y /z /b /c /d
     Cell{w}.(Agent | Node{n}.(
       # top left
         Cell{n}.Directions.(South{b})
