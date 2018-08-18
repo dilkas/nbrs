@@ -586,7 +586,7 @@ added to actions simply by inserting an integer enclosed in square brackets
 after the action name (e.g. \texttt{\textbf{action} b[1]}). Lastly, predicate
 rewards have the same format, but are listed on the \texttt{\textbf{preds}} line
 of the \texttt{\textbf{begin nbrs}}---\texttt{\textbf{end}} block (e.g.
-\texttt{\textbf{preds} = \{heads[3]\};}).
+\texttt{\textbf{preds} = \{heads[3]\}}).
 
 BigraphER can construct and visualise the full transition system (see
 Fig.~\ref{example_ts}). Each state is represented by a white ellipse (the
@@ -654,7 +654,7 @@ are possible by considering which direction the agent is facing
 \cite{koenig1998xavier} or adding extra state to the agent such as limited
 battery life or high/lower power sensors \cite{dblp:conf/nfm/giaquintahimn18}.
 
-\subsection{Collecting Objects in a Grid}
+\subsection{Collecting Objects in a Grid} \label{first_agent_section}
 
 Our first scenario is concerned with collecting objects in a grid-like
 two-dimensional world and is inspired by similar scenarios modelled using PRISM
@@ -867,8 +867,19 @@ Listing~\ref{agent2_north}.
 \subsection{Exporting to PRISM} \label{prism_section}
 
 Now that we have two models defined in BigraphER, we will briefly show how they
-can be exported and used for quantitative analysis with PRISM. More information
-about the syntax and capabilities of PRISM properties can be found in the PRISM
+can be exported and used for quantitative analysis with PRISM. Suppose a model
+is in a file called \texttt{agent.big}. Then, in order to export labels, the
+transition matrix, and state rewards, one would call
+\[ \texttt{bigrapher full -l
+    agent.csl -p agent.tra -r agent.rews agent.big}. \]
+The \texttt{agent.csl} file can then be augmented with the desired
+\emph{properties} to check or compute, and run with PRISM with the command
+\begin{multline*}
+\texttt{prism -importtrans agent.tra -importstaterewards agent.rews
+  \textbackslash} \\ \texttt{agent.csl}.
+\end{multline*}
+More information about the syntax and capabilities of PRISM properties can be
+found in the PRISM
 manual\footnote{\url{http://www.prismmodelchecker.org/manual/PropertySpecification/Introduction}}.
 
 For our first model, we set the probability of finding an object to $p = 0.5$
@@ -910,49 +921,120 @@ wall (remember to include the transition for generating the room).
 
 \section{Discussion}
 
-TODO (possibly): state transition diagrams and statistics about the number of
-states, etc.
+%TODO (possibly): state transition diagrams and statistics about the number of
+%states, etc.
 
-\begin{itemize}
-\item LIMITATIONS
-  \begin{itemize}
-  \item no easy way to change probabilities depending on the state
-  \item each room only has a single entrance/exit (could be fixed via
-    bigraphs with sharing)
-  \item can't implement everything you can think of: no way to check for set
-    membership, limited support for representing numbers (adding/subtracting $n$
-    has to be a separate reaction rule for each $n$)
-  \item PRISM doesn't support importing transition rewards, positive and
-    negative rewards at the same time, importing SMGs.
-  \end{itemize}
-\item EXTENSIONS
-  \begin{itemize}
-  \item discovery of spaces independent of room structure (no specific ideas
-    yet, but could be very nice)
-  \item there's no good reason why rewards are assigned to actions rather than
-    reaction rules
-  \item multiple agents
-  \item uncertainty in actions (like in Artificial Intelligence: A Modern
-    Approach)
-  \end{itemize}
-\item ADVANTAGES
-  \begin{itemize}
-  \item less code than with PRISM
-  \item more visual and intuitive, represents the modelled situation in a more
-    straightforward way
-  \item rewards and transition rules can be generated with a higher degree of
-    automation (considering a specific property of a state, rather than listing
-    all states that satisfy that property)
-  \item more flexible in changing the size of the grid
-  \item can be easily extended to more than four directions
-  \end{itemize}
-\end{itemize}
+While using bigraphs to model movement did allow us to achieve some results
+quite easily as well as to explore ideas not easily expressed otherwise, we have
+to acknowledge some limitation that we have encountered throughout the process.
 
-\section{Conclusion}
+First, the probability assigned to a reaction rule stays constant. The only way
+it can be changed is by manipulating the number of rules applicable to a given
+bigraph.
 
-Food for thought: what models have efficient (i.e. polynomial in size)
-representation as BRSs? Can we define complexity classes (easy for everyone,
-easy for bigraphs but not for everyone, hard for everyone)?
+Second, there are some quite elementary concepts that cannot be
+expressed in terms of bigraphs and reaction rules without significant
+limitations or hindrances (or at all). For example, suppose we represent two
+numbers $m, n \in \mathbb{N}$ in our bigraph and wish to have a reaction rule
+that replaces $m$ with $m + n$. The only way to do that is by having a separate
+reaction rule for each possible value of $n$. Another example of a simple
+concept with no bigraphical representation is checking whether an element is in
+a set, where both the element and the set have some representations in a
+bigraph.
+
+Third, there are significant limitations with regards to PRISM integration.
+While we implemented the functionality to export transition rewards based on how
+PRISM exports them, to the author's surprise, PRISM does not support importing
+them (yet). In addition, while it is trivial to support both positive and
+negative numbers as rewards/costs, for PRISM it is a completely different
+problem---one that is not solved yet \cite{DBLP:conf/tacas/0001BCDDKM016}. Also,
+the format for exporting the data to PRISM limits the kind of properties that
+can be computed or checked: while PRISM supports having several rewards and
+referring to each of them as needed, there is no way to define several rewards
+within the plain text formats provided. Finally, while it would be trivial to
+extend the nondeterminism to different ``players'' making different decisions
+(modelling stochastic multiplayer games \cite{DBLP:phd/dnb/Ummels11}), and PRISM
+has an extension that supports such scenarios \cite{DBLP:conf/tacas/ChenFKPS13},
+there is no way to import player labels together with the transition system.
+
+On the other hand, choosing to model with bigraphs rather than, e.g., the
+PRISM language has some clear advantages as well. First, our example model in
+Section \ref{first_agent_section} resulted in significantly less code than a
+similar model in PRISM \cite{dblp:conf/nfm/giaquintahimn18}. Second, our models
+can be much easier to modify: in order to change or extend the grid in some way
+one only needs to change a single bigraph. Similarly, changing how the movement
+of the agent is represented (the number of directions of movement, tracking
+rotations separately from moving forward, adding a probability of accidentally
+moving the wrong way, etc.) results in several simple changes. Third, bigraphs
+come with a visual representation as well as constructs such as nesting and
+linking, allowing for a richer and more intuitive way to represent many modelled
+situations.
+
+\section{Conclusions and Future Work}
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    % outer walls
+    \draw (4, 2) -- (4, 0) -- (1, 0) -- (1, 2) -- (0, 2) -- (0, 3) -- (4, 3) -- (4, 2);
+    % inner walls
+    \draw (2, 2) -- (3, 2) -- (3, 1);
+    %\draw[red,ultra thick,dashed] (2, 2) -- (2, 1);
+    % door 1
+    \draw[dotted] (1.25,2) arc (180:270:0.5cm);
+    \draw[brown,ultra thick] (1.75,1.5) -- (1.75,2) node[right,  near start]{};
+    \draw (1, 2) -- (1.25, 2);
+    \draw (1.75, 2) -- (2, 2);
+    % door 2
+    \draw[dotted] (3.25,2) arc (180:270:0.5cm);
+    \draw[brown,ultra thick] (3.75,1.5) -- (3.75,2) node[right,  near start]{};
+    \draw (3, 2) -- (3.25, 2);
+    \draw (3.75, 2) -- (4, 2);
+    % door 3
+    \draw[dotted] (3, 0.75) arc (90:180:0.5cm);
+    \draw[brown,ultra thick] (2.5, 0.25) -- (3, 0.25) node[right,  near start]{};
+    \draw (3, 0.25) -- (3, 0);
+    \draw (3, 0.75) -- (3, 1);
+    % background grid
+    \draw[gray,very thin] (1, 3) -- (1, 2);
+    \draw[gray,very thin] (2, 3) -- (2, 0);
+    \draw[gray,very thin] (3, 3) -- (3, 2);
+    \draw[gray,very thin] (1, 1) -- (4, 1);
+  \end{tikzpicture}
+  \caption{An example map where both rooms have two doors.}
+  \label{multiple_doors}
+\end{figure}
+
+In this paper we have proposed a way to extend BRSs with probabilities and
+nondeterminism, allowing them to represent any MDP. We have presented a new
+interface for the development and visualisation of BRSs and provided two
+example models for autonomous agents, finding more efficient representations for
+models that already exist as well as tackling new challenges.
+
+% TODO: code for representing the map
+% TODO: what if a door to a room is locked (don't remove the room itself)
+Our second example in particular has introduced two new directions for modelling
+space that have not been explored in full yet. First, while it is often useful
+to think of one space as nested inside another, sometimes a room might have
+several doors: one or two to a corridor, and one to an adjacent room (see, e.g.,
+Fig. \ref{multiple_doors}). The model could support this by using the sharing
+part of bigraphs with sharing\footnote{While our definitions are based on this
+  extension, the additional functionality was not used.}, i.e., have the room be
+inside both a \texttt{Cell} in the corridor and a \texttt{Cell} of another room.
+Second, the model glues the discovery of the structure of a room together with
+being near the door: once the agent visits the \texttt{Cell} encompassing the
+room, it immediately discovers what is inside it. It would improve the model
+significantly to have discovery as a completely separate process, where the
+creator of the map has full control over when a substructure is discovered.
+
+Finally, one ought to note that a bigraphical representation can often be
+asymptotically more compact than a full MDP or discrete-time Markov chain and
+sometimes even than a PRISM description of the same situation (until the BRS is
+expanded into its full transition system, that is). This raises an interesting
+question: can we define complexity classes of models, paying particular
+attention to the MDPs that have an exponential number of states, but can be
+represented in a polynomial number of bigraphs and reaction rules? Which of
+these models do not have a PRISM representation of polynomial size?
 
 \bibliographystyle{splncs04}
 \bibliography{bibliography}
