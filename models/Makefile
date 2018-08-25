@@ -1,5 +1,6 @@
 all: example_ts.pdf_tex
 	cd example_bigraph && make all
+	cd agent1 && make all
 	cd agent2 && make all
 	cd pbrs_example && make all
 

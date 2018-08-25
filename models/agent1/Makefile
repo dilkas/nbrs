@@ -1,3 +1,11 @@
+all: home.pdf_tex ts.pdf_tex
+
+%.pdf_tex: compile
+	inkscape -D -z --file=$*.svg --export-pdf=$*.pdf
+
+compile:
+	bigrapher full -f svg -d ./ -t ts agent.big
+
 prism-files: agent.big
 	bigrapher full -l agent.csl -p agent.tra -r agent.rews agent.big
 
