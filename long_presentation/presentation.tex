@@ -21,6 +21,10 @@
 \newcommand\pro{\item[\textcolor{green}{$+$}]}
 \newcommand\con{\item[\textcolor{red}{$-$}]}
 \providecommand\longdoublearrowRHD{\mathrel\LHD\joinrel\relbar\joinrel\relbar\joinrel\mathrel\RHD}
+\providecommand\longrightarrowRHD{\relbar\joinrel\relbar\joinrel\mathrel\RHD}
+\makeatletter
+\providecommand*\xrightarrowRHD[2][]{\ext@arrow 0055{\arrowfill@\relbar\relbar\longrightarrowRHD}{#1}{#2}}
+\makeatother
 
 \lstdefinelanguage{Big}{
   basicstyle=\ttfamily,
@@ -94,8 +98,8 @@
 \begin{frame}{Collecting Objects in a Grid}
   \begin{itemize}
   \item Each cell is either visited or unvisited.
-  \item When entering an unvisited cell, with probability $p$ the agent may
-    receive an object.
+  \item When entering an unvisited cell, with probability $p$ the agent receives
+    an object.
   \item Once a set number of objects is collected, the agent heads home.
   \end{itemize}
 \end{frame}
@@ -167,21 +171,29 @@
 \begin{frame}{A High Level View}
   \begin{itemize}
   \item Controls (types of nodes)
+    \pause
     \begin{itemize}
-    \item \texttt{Cell, Agent, Directions, Object}
+    \item \texttt{Agent, Cell, Directions, Object}
+      \pause
     \item \texttt{North, East, West, South}
+      \pause
     \item \texttt{Visited, Unvisited}
     \end{itemize}
+    \pause
   \item Predicates (properties to check)
     \begin{itemize}
     \item \texttt{goal}: collected the required number of objects
     \item \texttt{home}: is in the southwest corner of the grid
     \end{itemize}
+    \pause
   \item Reaction rules (how the state changes)
+    \pause
     \begin{itemize}
     \item Categorised into \alert{actions} by direction
     \item Different rules for going to visited and unvisited cells
+      \pause
     \item Priority 1: going/staying home (5 rules)
+      \pause
     \item Priority 2: 3 rules per direction
       \begin{itemize}
       \item visited
@@ -199,7 +211,7 @@
     \path[->]<2-5> (t-state) edge[blue] (9.5, -0.4);
     \path[->,bend left=10]<3-5> (t-action) edge[blue] (7.8, -1.5);
     \path[->]<4-5> (t-rules) edge[blue] (6.4, -2.2);
-    \path[->,bend left=10]<4-5> (t-rules) edge[blue] (8.5, -2.2);
+    \path[->,bend left=10]<4-5> (t-rules) edge[blue] (8.3, -2.2);
     \path[->]<5> (t-predicate) edge[blue] (8, -3);
   \end{tikzpicture}
   \begin{itemize}
@@ -235,11 +247,11 @@
         \centering
         \begin{tikzpicture}
           \node {\includegraphics[width=\textwidth]{../models/agent1/home.pdf}};
-          \path (-3, 2) coordinate (region);
-          \path (-2.4, 0.6) coordinate (node1);
+          \path (-3, 1.9) coordinate (region);
+          \path (-2.4, 0.7) coordinate (node1);
           \path (-2.4, -0.5) coordinate (node2);
-          \path (-2.2, -2) coordinate (site);
-          \path (-1.9, 2) coordinate (link1);
+          \path (-2.2, -1.8) coordinate (site);
+          \path (-1.9, 2.1) coordinate (link1);
           \path (-0.8, 2.1) coordinate (link2);
           \path (2.5, 2.1) coordinate (link3);
         \end{tikzpicture}
@@ -259,6 +271,26 @@
     \path[->,bend left=70]<5> (t-link) edge[blue] (link2);
     \path[->,bend left=80]<5> (t-link) edge[blue] (link3);
   \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Reaction Rule: Go West and Collect an Object}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{../models/agent1/westObject_lhs.pdf}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.1\textwidth}
+      $\xrightarrowRHD{p}$
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{../models/agent1/westObject_rhs.pdf}
+      \end{figure}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{A Tale of Schr\"{o}dinger's Wall...}
@@ -322,7 +354,87 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}{Reaction rules}
+\begin{frame}{A High Level View}
+  \begin{itemize}
+  \item Controls
+    \begin{itemize}
+    \item \texttt{Agent, Cell, Directions, \alert{Goal}, \alert{Node}}
+      \pause
+    \item \texttt{North, East, West, South}
+    \item no \texttt{Object}, no \texttt{Visited/Unvisited}
+    \end{itemize}
+    \pause
+  \item Reaction rules
+    \begin{itemize}
+    \item Priority 1: generating the room (2 rules in 1 action)
+      \pause
+    \item Priority 2: movement in 6 directions (including going in/out)
+      \begin{itemize}
+      \item each rule in a separate action
+      \end{itemize}
+    \end{itemize}
+    \pause
+  \item Predicate
+    \begin{itemize}
+    \item is \texttt{Agent} and \texttt{Goal} in the same cell?
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The Main Idea}
+  \tikzstyle{na} = [baseline=-0.5ex]
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item<2-> Outside the door \tikz[na] \coordinate (t-outside);
+      \item<3-> The room \tikz[na] \coordinate (t-room);
+      \item<4-> Inside the door \tikz[na] \coordinate (t-inside);
+      \item<5-> Which cell is closest to the \tikz[na] \coordinate (t-link);
+        door?
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \begin{tikzpicture}
+          \node {\includegraphics{../models/agent2/nesting_example/example.pdf}};
+          \path (-1, 1.1) coordinate (outside);
+          \path (-1, -0.8) coordinate (room);
+          \path (0, -2.7) coordinate (inside);
+          \path (1.4, 1.1) coordinate (link);
+        \end{tikzpicture}
+      \end{figure}
+    \end{column}
+  \end{columns}
+  \begin{tikzpicture}[overlay]
+    \path[->]<2-> (t-outside) edge[blue] (outside);
+    \path[->]<3-> (t-room) edge[blue] (room);
+    \path[->,bend left=20]<4-> (t-inside) edge[blue] (inside);
+    \path[->,bend right=10]<5-> (t-link) edge[blue] (link);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Initial State}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{../models/agent2/initial.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Opening the Door}
+  \begin{figure}
+    \centering
+    \includegraphics{../models/agent2/closedDoor_lhs.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Opening the Door}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{../models/agent2/closedDoor_rhs.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Entering/Leaving a Room}
   \begin{columns}
     \begin{column}{0.45\textwidth}
       \begin{figure}

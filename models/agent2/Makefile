@@ -1,4 +1,4 @@
-all: goIn_lhs.pdf_tex goIn_rhs.pdf_tex
+all: goIn_lhs.pdf_tex goIn_rhs.pdf_tex initial.pdf_tex closedDoor_lhs.pdf_tex closedDoor_rhs.pdf_tex
 	cd nesting_example && make all
 
 %.pdf_tex: compile

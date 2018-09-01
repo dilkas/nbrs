@@ -1,4 +1,4 @@
-all: home.pdf_tex ts.pdf_tex
+all: home.pdf_tex ts.pdf_tex westObject_lhs.pdf_tex westObject_rhs.pdf_tex
 
 %.pdf_tex: compile
 	inkscape -D -z --file=$*.svg --export-pdf=$*.pdf
