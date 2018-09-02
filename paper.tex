@@ -920,9 +920,6 @@ wall (remember to include the transition for generating the room).
 
 \section{Discussion}
 
-%TODO (possibly): state transition diagrams and statistics about the number of
-%states, etc.
-
 While using bigraphs to model movement did allow us to achieve some results
 quite easily as well as to explore ideas not easily expressed otherwise, we have
 to acknowledge some limitation that we have encountered throughout the process.
@@ -978,7 +975,6 @@ situations.
     \draw (4, 2) -- (4, 0) -- (1, 0) -- (1, 2) -- (0, 2) -- (0, 3) -- (4, 3) -- (4, 2);
     % inner walls
     \draw (2, 2) -- (3, 2) -- (3, 1);
-    %\draw[red,ultra thick,dashed] (2, 2) -- (2, 1);
     % door 1
     \draw[dotted] (1.25,2) arc (180:270:0.5cm);
     \draw[brown,ultra thick] (1.75,1.5) -- (1.75,2) node[right,  near start]{};

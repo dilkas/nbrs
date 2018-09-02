@@ -1,0 +1,8 @@
+digraph "multiple_rooms" {
+corridor [ label="Corridor", fontsize=9, id="corridor", fontname="monospace", width=.6, height=.3, style=filled, fillcolor="0.083,0.3,1" ];
+room1 [ label="Room 1", fontsize=9, id="room1", fontname="monospace", width=.6, height=.3, style=filled, fillcolor="0.333,0.3,1" ];
+room2 [ label="Room 2", fontsize=9, id="room2", fontname="monospace", width=.6, height=.3, style=filled, fillcolor="0.666,0.3,1" ];
+corridor -> room1 [arrowhead="vee", arrowsize=0.5];
+corridor -> room2 [arrowhead="vee", arrowsize=0.5];
+room1 -> room2 [arrowhead="vee", arrowsize=0.5];
+}

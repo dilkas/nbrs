@@ -84,9 +84,14 @@ action south
 end
 
 action goIn
-  react goIn = Cell{x}.(Agent | Node{n}.(Cell{n} | id) | id)
+  react goIn = Cell{x}.(Agent | Node{n}.(Cell{n}
+                                       | id)
+                      | id)
                -[1.0]->
-               Cell{x}.(Node{n}.(Cell{n}.(Agent | id) | id) | id);
+               Cell{x}.(Node{n}.(Cell{n}.(Agent
+                                        | id)
+                               | id)
+                      | id);
 end
 
 action goOut
