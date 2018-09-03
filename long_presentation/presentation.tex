@@ -10,11 +10,15 @@
 \usepackage[lighttt]{lmodern}
 \usepackage{xcolor}
 
-\usetikzlibrary{shapes}
+\usetikzlibrary{shapes,calc}
+\tikzstyle{na} = [baseline=-0.5ex]
+\tikzstyle{every picture}+=[remember picture]
+
 \usetheme{Boadilla}
 \beamertemplatenavigationsymbolsempty
 \author{Paulius Dilkas}
-\title[Nondeterministic Bigraphs]{Nondeterministic Bigraphs and Their Use in Modelling Movement}
+\title[Nondeterministic Bigraphs]{Nondeterministic Bigraphs and Their Use in
+  Modelling Movement}
 %s\subtitle{}
 \institute[]{School of Computing Science}
 % TODO: \date{12th September 2018}
@@ -38,12 +42,11 @@
   morekeywords={fun, brs, end, sbrs, pbrs, nbrs, begin, init, atomic, preds,
     rules, action, big, ctrl, float, int, react, id},
   comment=[l]{\#},
-  morecomment=[s][\color{name}]{\{}{\}},
   keywordstyle=\bfseries\color{keyword},
   commentstyle=\itshape\color{comment},
   alsoletter={=,|,-,>,@},
   emph={=,|,||,-,->,-->,@},
-  emphstyle=\color{operator}
+  emphstyle=\color{operator},
 }
 
 \lstset{language=Big}
@@ -54,7 +57,6 @@
 
 \begin{document}
 \maketitle
-\tikzstyle{every picture}+=[remember picture]
 
 \begin{frame}{Motivation}
   \begin{columns}[t]
@@ -219,7 +221,6 @@
 \end{frame}
 
 \begin{frame}[t]{Transition System}
-  \tikzstyle{na} = [baseline=-0.5ex]
   \begin{tikzpicture}[overlay]
     \node () at (7.5, -3.8) {\includegraphics[clip, trim=15cm 35.2cm 20cm 0cm, width=\textwidth]{../models/agent1/ts.pdf}};
     \path[->]<2-5> (t-state) edge[blue] (9.5, -0.4);
@@ -269,7 +270,7 @@
 \end{frame}
 
 \begin{frame}{Bigraphs}
-  \tikzstyle{na} = [baseline=-0.5ex]
+  \lstset{morecomment=[s][\color{name}]{\{}{\}}}
   \begin{columns}
     \begin{column}{0.5\textwidth}
       \only<-5>{
@@ -298,8 +299,8 @@
     \end{column}
   \end{columns}
   \onslide<6>{
-    \lstinputlisting[language=Big, firstline=16,
-    lastline=18, xleftmargin=0.09\textwidth]{../models/agent1/agent.big}
+    \lstinputlisting[firstline=16, lastline=18,
+    xleftmargin=0.09\textwidth]{../models/agent1/agent.big}
   }
   \begin{tikzpicture}[overlay]
     \path[->]<2-5> (t-region) edge[blue] (region);
@@ -313,6 +314,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{Initial State}
+\lstset{morecomment=[s][\color{name}]{\{}{\}}}
 \begin{lstlisting}
 
 big initial = Visited{v}
@@ -443,7 +445,6 @@ big initial = Visited{v}
 \end{frame}
 
 \begin{frame}{The Main Idea}
-  \tikzstyle{na} = [baseline=-0.5ex]
   \begin{columns}
     \begin{column}{0.5\textwidth}
       \begin{itemize}
@@ -515,9 +516,82 @@ big initial = Visited{v}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Entering/Leaving a Room}
-  \lstinputlisting[language=Big, firstline=86,
-  lastline=95]{../models/agent2/agent.big}
+\begin{frame}[fragile]{Entering/Leaving a Room}
+  \lstset{morecomment=[s][\color{name}]{\{}{\}}}
+  \onslide<2>{Action rewards \tikz[na] \coordinate (text);}
+  \begin{onlyenv}<1>
+\begin{lstlisting}
+
+action goIn
+  react goIn = Cell{x}.(Agent | Node{n}.(Cell{n}
+                                       | id)
+                      | id)
+               -[1.0]->
+               Cell{x}.(Node{n}.(Cell{n}.(Agent
+                                        | id)
+                               | id)
+                      | id);
+end
+
+\end{lstlisting}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+\begin{lstlisting}[escapechar=!]
+
+action goIn!\alert{[1]}!
+  react goIn = Cell{x}.(Agent | Node{n}.(Cell{n}
+                                       | id)
+                      | id)
+               -[1.0]->
+               Cell{x}.(Node{n}.(Cell{n}.(Agent
+                                        | id)
+                               | id)
+                      | id);
+end
+
+\end{lstlisting}
+  \end{onlyenv}
+  \onslide<2>{
+    \begin{tikzpicture}[overlay]
+      \path[->] (text) edge[blue] (2.9, 5.3);
+    \end{tikzpicture}
+  }
+\end{frame}
+
+\begin{frame}[fragile]{Tracking Time with State Rewards}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+\begin{lstlisting}[escapechar=!]
+
+!\tikz{\coordinate (blanket-1)}!big agent = Agent;!\tikz{\coordinate (blanket-2)}!
+
+begin !\tikz{\coordinate (nbrs-1)}!nbrs!\tikz{\coordinate (nbrs-2)}!
+  init !\tikz{\coordinate (init-1)}!initialState!\tikz{\coordinate (init-2)}!;
+  rules = !\tikz{\coordinate (rules-1)}![ {...}, {...} ]!\tikz{\coordinate (rules-2)}!;
+  preds = !\tikz{\coordinate (preds-1)}!{ agent!\tikz{\coordinate (reward-1)}![1]!\tikz{\coordinate (reward-2)}! }!\tikz{\coordinate (preds-2)}!;
+end
+
+\end{lstlisting}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+      \item<2-> Blanket predicate
+      \item<3-> Nondeterministic Bigraphical Reactive System
+      \item<4-> Initial State
+      \item<5-> List of reaction rules (grouped into priority classes)
+      \item<6-> List of predicates
+      \item<7-> Predicate rewards (optional)
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \begin{tikzpicture}[overlay]
+    \draw<2> [red,thick] let \p1 = (blanket-1) in let \p2 = (blanket-2) in (\x1,\y1-1ex) rectangle (\x2, \y2+2ex);
+    \draw<3> [red,thick] let \p1 = (nbrs-1) in let \p2 = (nbrs-2) in (\x1,\y1-1ex) rectangle (\x2, \y2+2ex);
+    \draw<4> [red,thick] let \p1 = (init-1) in let \p2 = (init-2) in (\x1,\y1-1ex) rectangle (\x2, \y2+2ex);
+    \draw<5> [red,thick] let \p1 = (rules-1) in let \p2 = (rules-2) in (\x1,\y1-1ex) rectangle (\x2, \y2+2ex);
+    \draw<6> [red,thick] let \p1 = (preds-1) in let \p2 = (preds-2) in (\x1,\y1-1ex) rectangle (\x2, \y2+2ex);
+    \draw<7> [red,thick] let \p1 = (reward-1) in let \p2 = (reward-2) in (\x1,\y1-1ex) rectangle (\x2, \y2+2ex);
+  \end{tikzpicture}
 \end{frame}
 
 \begin{frame}{Extensions}
@@ -576,6 +650,29 @@ big initial = Visited{v}
     \path[->,bend left=10] (4.6, 3) edge[blue,thick] (9.9, 3.5);
     \path[->,bend left=10] (3.6, 1.6) edge[blue,thick] (8.9, 1.8);
   \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{A New Interface}
+  \begin{figure}
+    \centering
+    \includegraphics{screenshot.jpg}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{A New Interface}
+  \begin{itemize}
+  \item Similar workflow to other Jupyter notebooks
+  \item Syntax highlighting
+  \item Visualisation of bigraphs and reaction rules
+  \item Full and partial transition diagrams
+    \begin{itemize}
+    \item with state bigraph preview on mouseover
+    \end{itemize}
+  \item Backwards compatible to run OCaml code
+  \end{itemize}
+  \begin{block}{Available at}
+    \url{https://github.com/dilkas/bigrapher-jupyter}
+  \end{block}
 \end{frame}
 
 %  \item Limitations
