@@ -20,7 +20,7 @@
 \title[Nondeterministic Bigraphs]{Nondeterministic Bigraphs and Their Use in
   Modelling Movement}
 %s\subtitle{}
-\institute[]{School of Computing Science}
+\institute[]{School of Computing Science, University of Glasgow}
 % TODO: \date{12th September 2018}
 
 \newcommand\pro{\item[\textcolor{green}{$+$}]}
@@ -91,7 +91,7 @@
       \node[state,label=try](s1) at (4, 0){$s_1$};
       \node[action](wait) at (4, -2){wait};
       \node[action](send) at (6, 0){send};
-      \node[state,label={right:failure}](s2) at (8, 2){$s_2$};
+      \node[state,label={right:failure},label={below:\textcolor{red}{-1}}](s2) at (8, 2){$s_2$};
       \node[action](restart) at (8, 4){restart};
       \node[state,label={below:success},label={above:\textcolor{green}{+3}}](s3) at (8, -2){$s_3$};
       \node[action](stop) at (10, -2){stop};
@@ -114,8 +114,10 @@
 \begin{frame}{Collecting Objects in a Grid}
   \begin{itemize}
   \item Each cell is either visited or unvisited.
+    \pause
   \item When entering an unvisited cell, with probability $p$ the agent receives
     an object.
+    \pause
   \item Once a set number of objects is collected, the agent heads home.
   \end{itemize}
 \end{frame}
@@ -244,7 +246,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}{Mechanics of Workflow}
+\begin{frame}{The Workflow}
   \begin{itemize}
   \item Start with an initial state
     \pause
@@ -577,7 +579,7 @@ end
       \begin{itemize}
       \item<2-> Blanket predicate
       \item<3-> Nondeterministic Bigraphical Reactive System
-      \item<4-> Initial State
+      \item<4-> Initial state
       \item<5-> List of reaction rules (grouped into priority classes)
       \item<6-> List of predicates
       \item<7-> Predicate rewards (optional)
@@ -652,6 +654,19 @@ end
   \end{tikzpicture}
 \end{frame}
 
+\begin{frame}{Limitations of the Model}
+  \begin{itemize}
+  \item One door per cell
+    \begin{itemize}
+    \item Otherwise which door the agent uses would be random
+      \pause
+    \item Workaround: use more cells
+    \end{itemize}
+    \pause
+  \item Two ideas in one: discovering space \& entering an inner space
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{A New Interface}
   \begin{figure}
     \centering
@@ -662,38 +677,56 @@ end
 \begin{frame}{A New Interface}
   \begin{itemize}
   \item Similar workflow to other Jupyter notebooks
-  \item Syntax highlighting
-  \item Visualisation of bigraphs and reaction rules
-  \item Full and partial transition diagrams
+  \item<2-> Syntax highlighting
+  \item<3-> Visualisation of bigraphs and reaction rules
+  \item<4-> Full and partial transition diagrams
     \begin{itemize}
     \item with state bigraph preview on mouseover
     \end{itemize}
-  \item Backwards compatible to run OCaml code
+  \item<5-> Backwards compatible to run OCaml code
   \end{itemize}
   \begin{block}{Available at}
     \url{https://github.com/dilkas/bigrapher-jupyter}
   \end{block}
 \end{frame}
 
-%  \item Limitations
-%    \begin{itemize}
-%    \item One door per cell
-%      \begin{itemize}
-%      \item Workaround: use more cells
-%      \end{itemize}
-%    \item Discovered space = inner space (the room)
-%    \end{itemize}
+% exporting to prism: predicates become labels, examples of what can be computed
+% % and checked, (transition systems (partial or full), labels from predicates,
+% state/transition rewards)
+% con: prism integration (no importing for transition rewards)
+% both positive and negative rewards
+% several types of rewards cannot be imported
 
 \begin{frame}{Conclusions}
   \begin{itemize}
-    \pro A direct visual representation of the modelled situation
     \pro Easy to represent complicated spatial structures and uncertainty about
     them
+    \pause
+    \pro A direct visual representation of the modelled situation
+    \pause
     \pro Succinct and easy to modify
+    \pause
+    \pro Can generate any MDP
+    \pause
+    \pro Transition system can be exported to PRISM
+    \begin{itemize}
+      \con with some limitations (e.g., no transition rewards)
+    \end{itemize}
+    \pause
+    \con Probabilities are constant and cannot easily depend on state
+    \pause
     \con Some simple ideas are impossible or hard to implement
-    \con Not every aspect of a model can be exported for quantitative analysis
-    \item More work to be done on probabilistic space
+    \begin{itemize}
+      \pause
+    \item adding/subtracting integers
+      \pause
+    \item set membership check
+    \end{itemize}
   \end{itemize}
+  \pause
+  \centering
+  \large
+  \emph{Thank You!}
 \end{frame}
 
 \end{document}
