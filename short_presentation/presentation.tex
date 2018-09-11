@@ -18,6 +18,7 @@
 
 \newcommand\pro{\item[\textcolor{green}{$+$}]}
 \newcommand\con{\item[\textcolor{red}{$-$}]}
+\providecommand\longrightarrowRHD{\relbar\joinrel\relbar\joinrel\mathrel\RHD}
 \providecommand\longdoublearrowRHD{\mathrel\LHD\joinrel\relbar\joinrel\relbar\joinrel\mathrel\RHD}
 
 \begin{document}
@@ -57,7 +58,7 @@
       \node[state,label=try](s1) at (4, 0){$s_1$};
       \node[action](wait) at (4, -2){wait};
       \node[action](send) at (6, 0){send};
-      \node[state,label={right:failure}](s2) at (8, 2){$s_2$};
+      \node[state,label={right:failure},label={below:\textcolor{red}{-1}}](s2) at (8, 2){$s_2$};
       \node[action](restart) at (8, 4){restart};
       \node[state,label={below:success},label={above:\textcolor{green}{+3}}](s3) at (8, -2){$s_3$};
       \node[action](stop) at (10, -2){stop};
@@ -80,8 +81,8 @@
 \begin{frame}{Collecting Objects in a Grid}
   \begin{itemize}
   \item Each cell is either visited or unvisited.
-  \item When entering an unvisited cell, with probability $p$ the agent may
-    receive an object.
+  \item When entering an unvisited cell, with probability $p$ the agent receives
+    an object.
   \item Once a set number of objects is collected, the agent heads home.
   \end{itemize}
 \end{frame}
@@ -272,7 +273,7 @@
       \end{figure}
     \end{column}
     \begin{column}{0.1\textwidth}
-      $\longdoublearrowRHD$
+      $\longrightarrowRHD$
     \end{column}
     \begin{column}{0.45\textwidth}
       \begin{figure}
@@ -285,14 +286,23 @@
 
 \begin{frame}{Conclusions}
   \begin{itemize}
-    \pro A direct visual representation of the modelled situation
     \pro Easy to represent complicated spatial structures and uncertainty about
     them
-    \pro Succinct and easy to modify
+    \pause
+    \pro A direct visual representation of the modelled situation
+    \pause
+    %\pro Succinct and easy to modify
+    %\pause
+    %\con Not every aspect of a model can be exported for quantitative analysis
+    %\pause
     \con Some simple ideas are impossible or hard to implement
-    \con Not every aspect of a model can be exported for quantitative analysis
+    \pause
     \item More work to be done on probabilistic space
   \end{itemize}
+  \pause
+  \centering
+  \large
+  \emph{Thank You!}
 \end{frame}
 
 \end{document}
